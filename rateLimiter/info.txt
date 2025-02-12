@@ -1,0 +1,9 @@
+
+user gets 429 response on being throttled
+algo to be used
+
+token bucket (keep tweeking size of bucket with high loads)
+fixed counter
+sliding counter
+
+https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/
