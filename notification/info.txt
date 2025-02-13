@@ -1,0 +1,19 @@
+requirements:
+what types of notifications? push/sms/email
+supported devices: ios/android
+
+database:
+user:
+user_id,email_id, country
+
+device:
+user_id, device_id
+
+step3: 
+scalability ,prevent data loss
+
+When a notification event first arrives, we check if it is seen before by checking the event ID. If it is seen before, it is discarded.
+
+scalability:
+Notification templates are introduced to avoid building every notification from scratch. A notification template is a preformatted notification to create your unique notification by customizing parameters, styling, tracking links, etc. 
+rate limiting at notification servers
