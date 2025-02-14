@@ -1,0 +1,63 @@
+can be similar to airline management, movie booking
+
+functional requirements:
+
+Hotel: onboarding, updates, bookings
+
+User: search, book, check booking
+Analytics
+
+non functional requirements:
+low latency, high availability, high consistency
+scale:
+500k hotels, 10m rooms 1000 rooms per hotel
+
+CONCURRENCY ISSUES
+CLIENT SIDE:
+use idempotent apis and block the submit button after one click
+
+DATA CONSISTENCY
+use saga pattern for booking and payment service so as to make them in 
+a single transaction
+
+HLD.png:
+
+1. hotels data is stored in mysql database, since it is relational data
+2. elastic search is used with search hostels to promote fuzzy search
+and search with tags can also be done
+3. booking service sends data to kafka that the room has been booked and 
+dont show it in search 
+4. archival data is send to cassandra since it has high throughput for
+read and write and we can seach based on partiotion key(like booking id)
+
+
+DATABASE:
+Hotels(mysql works well with read heavy and write less frequently)
+
+hotel:
+hotel_id, name,locality_id, descrption, original_images,is_active
+
+hotel_facilities: 
+id, hotel_id, facility_id
+
+rooms:
+id, hotel_id, display_name, quantity, price_min,price_max
+
+rooms_facilities:
+id, room_id, facility_id
+
+Bookings
+
+available rooms:
+room_id, date,initialQuantity, availableQuantity
+
+booking:
+booking_id, room_id, user_id, start_date,end_date,numberofRooms,status
+
+status:
+[reserved/booked/cancelled/completed]
+
+
+a booking is cancelled if payment is not made in a particular time,
+we can put a key for that booking with a ttl in redis
+reds has callbacks that will notify us if booking is about to be cancelled
