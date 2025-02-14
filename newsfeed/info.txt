@@ -1,0 +1,28 @@
+requirements:
+
+user can publish and see friends posts
+how many friends a user can have?: 5000
+what is traffic volume: 10 million dau
+can contain both text and image
+
+Fanout service:
+
+Fanout on read. The news feed is generated during read time. This is an on-demand model. Recent posts are pulled when a user loads her home page.
+Fanout on write. With this approach, news feed is pre-computed during write time. A new post is delivered to friends’ cache immediately after it is published.
+We adopt a hybrid approach to get benefits of both approaches and avoid pitfalls in them. Since fetching the news feed fast is crucial, we use a push model for the majority of users. 
+For celebrities or users who have many friends/followers, we let followers pull news content on-demand to avoid system overload. 
+
+
+database:
+
+user:
+user_id, user_name
+
+friends:
+user_id1,user_id2
+
+userToposts:
+user_id,post_id
+
+posts:
+post_id,post_details
