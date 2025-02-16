@@ -1,0 +1,116 @@
+https://www.hellointerview.com/learn/system-design/problem-breakdowns/uber
+
+FUNCTIONAL REQUIREMENTS:
+user should be able to input start and destination and show price
+user should be able to request ride
+driver should be able/deny request
+driver nagivate to pickup/driveoff
+
+
+NON FUNCTIONAL REQUIREMENTS:
+low latency matching
+consistency of matching(driver to rider is 1 to 1 matching)
+handle high throughput(for peak hours or special events)
+
+CORE ENTITIES:
+Driver, Ride, Rider, Location
+
+API
+POST /ride/fairEstimate ->returns {ride, price}
+{
+    source: "",
+    destination:""
+}
+PUT /ride/request -> 200
+{
+    ride:""
+}
+POST /location/update
+{
+    lat,long
+}
+PUT /ride/driver/accept // here we can send driverid in jwt token
+{
+    rideId,
+    true/false
+}
+PUT /ride/driver/update
+{
+    rideId,
+    status: 'pickup' / 'dropoff'
+}
+
+
+DATABASE:
+can be nosql, because we need high availability
+rider:
+rider_id, name, email
+
+driver:
+driver_id, cabid, email,location(in location db), status: inride/offline, request_sent(use redis instead of this)
+
+
+ride:
+rideid, riderid, driverid, fare, eta, source, destination
+
+cab:
+driverid, cabid, regNo
+
+can use geospatial index in postgres
+location:
+driver_id, location
+
+LOCATION SERVICE:
+location service needs to be able to handle multipel transactions
+because it will handle drivers location input
+6M drivers
+3M active drivers
+driver sends location update every 5 seconds
+3M/5 = 600KTPS
+
+LOCATION DB:
+1. cannot use lat and long attribute in sql database, query will be too wide
+2. use geospatial index i.e quad trees, it is supported by postgress
+3. to handle high tps, we can make location db in memory like redis, it 
+can even handle  upto million TPS, redis also supports geohashing
+
+quad trees are good when the data is unevenly distributed and
+we have low updates because we will not need to reindex tree in each update
+
+CONSISTENCY OF MATCHING:
+
+1. we dont send more than one request at a time for a single ride:
+ride matching service has a list of drivers, it will send notification
+to driver using notification service sequentially using a while loop
+
+2.we dont send any driver more than one request at a time:
+each ride request can be on different ride matching service and to prevent 
+same driver to receive request from multiple ride matching service, 
+we need correlation between ride matching service(rms)
+each rms sends request to driver only if request_sent in driver table is false
+
+
+request_sent may be stuck if driver is not accepting the ride for some reason
+to prevent this we can have a cron job that runs periodically and reset the status
+if not updated
+
+
+instead of using request_sent use redis and set driver id to true along 
+with ttl
+
+ride matching service can check if driver is available or not from redis
+
+OPTIMIZATION
+we can have a ride request queue before ride matching service 
+this queue can be partioned by regions/location
+
+
+
+
+
+
+
+
+
+
+
