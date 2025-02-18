@@ -1,0 +1,51 @@
+
+FUNCTIONAL REQUIREMENTS:
+payin flow: payment system receives money from customers
+payout flow: payment system sends money to customers
+
+NON FUNCTIONAL REQUIREMENTS:
+reliability
+fault tolerance
+reconcilitaion is required to make sure payment is consistent across system
+
+can we use psp here instead of directly making payment ourself(requires lots of safety checks)
+ESTIMATION:
+1M transactions per day 
+approx 10 transactions per second
+
+Ledger is used to maintain consistency
+
+DATABASE:
+prefer sql database for reliability, performance is not the most important factor
+payment order table:
+payment_order_id, buyer_account, payment_order_status, ledger_updated,wallet_updated
+
+user:
+user_name, user_id, email
+
+NOTE:
+PSP updates the payment status using a webhook connection
+
+Reconcilitaion:
+It is done using a settlement file provided by the psp and comparing it with our ledger file
+
+Retry:
+when user tries to do failed payment again and again, we can decide intervals between multiple failed attempt
+• Immediate retry: client immediately resends a request.
+• Fixed intervals: wait a fixed amow1t of time between the time of the failed payment and a new retry attempt.
+
+Reliability:
+•Scenario1: The payment system integrates with PSP using a hosted payment page and client clicks pay button twice
+•Scenarlo 2: The payment is successfulJy processed by the PSP, but the response fails to reach our payment system due to network errors. 
+The user clicks the "pay" button again or the client retries the payment.
+
+
+Scenario1: handled using idempotency key
+Scenario2: The nonce uniquely represents the payment order, and the token uniquely maps to the nonce. Therefore, the token uniquely maps to the payment order.
+
+When a payment event is triggered, that event can be pushed to a queue like kafka, then it can be consumed by 
+services like payment service,analytics service etc
+
+Faile payments are pushed to dead letter queue
+
+To prevent Man in middle attack, we use ssl certification
