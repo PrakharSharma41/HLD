@@ -17,6 +17,8 @@ Ledger is used to maintain consistency
 
 DATABASE:
 prefer sql database for reliability, performance is not the most important factor
+on replicating data across multiple dbs, use quorum consensus to enforce that how many nodes we want to be updated when write happens
+
 payment order table:
 payment_order_id, buyer_account, payment_order_status, ledger_updated,wallet_updated
 
@@ -46,6 +48,12 @@ Scenario2: The nonce uniquely represents the payment order, and the token unique
 When a payment event is triggered, that event can be pushed to a queue like kafka, then it can be consumed by 
 services like payment service,analytics service etc
 
-Faile payments are pushed to dead letter queue
+Failed payments are pushed to dead letter queue
 
 To prevent Man in middle attack, we use ssl certification
+
+encrypt data at rest
+encrypt data in transit using ssl
+
+Data integrity:
+we calculate checksum of the data in db and regularly checksum of same resources and compare it with earlier checksum

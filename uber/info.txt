@@ -12,6 +12,8 @@ low latency matching
 consistency of matching(driver to rider is 1 to 1 matching)
 handle high throughput(for peak hours or special events)
 
+https://leetcode.com/discuss/interview-question/system-design/1490926/uber-system-design
+
 CORE ENTITIES:
 Driver, Ride, Rider, Location
 
