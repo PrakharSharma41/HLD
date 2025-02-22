@@ -1,0 +1,56 @@
+FUNCTIONALITIES:
+
+1. Log ingestion:
+1. user to provide log bundle path
+2. automatically process log bundle as soon as it is available
+
+2. Log browsing:
+all logs in one place, allows user tp service, node, ip  and time duration to see aggregate data from
+
+3. Log analysis:
+1. 1 click rule addition
+2. flag known issues
+3. real time browsing of critical logs, heatmap
+4. health of services
+
+4. AI/ML:
+RCA summary
+ai powered metrics
+support gpt integration
+
+
+what is actual use of haproxy?
+receives all requests and based on request header, if present sends to worker vm else routes to itself
+
+consumers consume message from rabbitmq by creating a connection to the queue and set the prefetch count to 1 to process only one log 
+bundle at a time
+
+consumers run as daemon process in worker vm
+A daemon is a background process that runs continuously and performs a specific task without user interaction. 
+How systemd Manages Daemons:
+systemd starts, stops, and monitors daemons using service unit files 
+
+Issues:
+1. only one log bundle at a time,waiting state in rabbitmq
+it is because current architecture use all cpus and parse logs in 10 minutes
+
+2.load balancing between rabbitmq is not good, it is round robin, if node 3 is supposed to handle a bundle but it is processing
+while node1 is free, we will wait for node3 to complete
+
+3. db backup
+
+4. round robin assigns to down vm
+
+5. queries are to be optimised, millions of rows
+data is stored in disk, manticore brings them to memory in form of batch with max size specified in max_batch and process it
+
+6. all logs(debug/info/fatal) are processed,  info are almost half of the logs, can they be ignored
+
+
+table in manticore contains:
+
+id, message, filename_without_ext,filename,filepath,time,log_level,source_log_filename,pid,cvm_ip,anomaly,line_number
+indexed on message
+
+manticore runs on a respective worker vm and mounts volume from a common fileserver, but this increases latency 
+due to network calls to file server
