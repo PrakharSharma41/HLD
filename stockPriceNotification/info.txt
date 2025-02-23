@@ -1,0 +1,70 @@
+
+https://leetcode.com/discuss/interview-question/system-design/5745135/Design-Stock-price-Notification-System
+
+
+Core entities
+
+
+stock price
+user_rule
+notification
+APIs/interfaces
+
+
+POST /rule
+{
+symbol: AAPL
+metric type: rsi, price
+value: 150, rule_type: above
+}
+
+
+POST /notification
+{
+user_id
+rule_id
+}
+
+
+A kafka stream to ingest stock price updates.
+
+DB choices:
+
+
+for stock prices
+a. we can use time series Database, like influx DB. why?
+provides high write throughput
+allows efficient time series related queries. - can easily handle large volume of updates.
+rules/user_subscriptions:
+use relational database like MySQL.
+
+
+DB design
+
+
+stock price:
+symbol,price,timestamp,rsi(precomputed using continuous queries)
+
+rule:
+rule_id,metric type,value,rule_type,subscribers
+
+There can millions of user rules which need to be evaluated when a new stock prices comes up. How can we make this fast ?
+
+
+Partition Rules by Stock Symbol: Since each rule is linked to a specific stock symbol, you can partition or shard the user rule table by stock symbol.
+Use an in-memory cache like Redis to store user rules for fast lookups.
+Store rules in sorted data structures like Redis Sorted Sets or B-trees. These can allow for efficient range queries on thresholds.
+If users frequently set similar rules (e.g., "above $60" or "below $50"), aggregate these rules.
+What if rules are complex for eg- average price of stock in last 7 days, moving average, rsi ? How will we store and query them with low latency ?
+
+
+Time series databases like InfluxDB and TimescaleDB are specifically designed for handling time-based data, making them ideal for pre-computing derived metrics like moving averages and RSI.
+Store derived metrics in the same time series database:
+Use Redis for caching: Cache the most recent precomputed metrics (e.g., 7-day moving average, RSI) for quick access during rule evaluation.
+how will we handle the scenario if a rule set on a stock symbol keeps becoming true and then false and then true as stock price fluctuate ?
+
+
+Cooldown or Debouncing Period
+Introduce a buffer zone around the threshold condition to avoid triggering notifications for minor price changes.
+Limit the number of notifications sent within a specific time window for a single rule.
+The system only evaluates the rule again once the price falls below the threshold, and no further notifications are sent until the rule switches from false to true again.
