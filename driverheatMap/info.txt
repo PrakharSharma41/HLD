@@ -1,0 +1,27 @@
+
+use quadtrees to store driver location
+
+Quad Tree Implementation with Relational Databases (PostgreSQL + PostGIS)
+Relational databases like PostgreSQL use GiST (Generalized Search Tree) indexes, which can be adapted to quad trees.
+
+CREATE EXTENSION postgis;
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    geom GEOMETRY(Point, 4326)  -- Stores latitude/longitude points
+);
+
+Step 3: Create a Quad Tree-Based GiST Index
+CREATE INDEX locations_gist ON locations USING GIST (geom);
+
+SELECT * FROM locations
+WHERE ST_Contains(ST_MakeEnvelope(-80, 25, -70, 35, 4326), geom);
+
+Step 4: Perform a Range Query
+SELECT * FROM locations
+WHERE ST_Contains(ST_MakeEnvelope(-80, 25, -70, 35, 4326), geom);
+
+Step 5: Find the Nearest Location
+SELECT * FROM locations
+ORDER BY geom <-> ST_GeomFromText('POINT(-75 30)', 4326)
+LIMIT 1;
