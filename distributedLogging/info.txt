@@ -1,0 +1,30 @@
+approach:
+1. push based
+2. pull based
+3. sync vs async
+4. continuous
+5. data warehouse
+
+push based:
+daemon agent running on prod pushes data to collection service
+and daemon agent is responsible for retries in this case
+daemon agent is responsible for the offset till which collection service has read
+batched up logs are sent to collection service
+logs data store here is  elasticsearch:
+{
+    log_message: "error: failed error here"
+    timestamp: 1234567
+    logging_level: fatal/error/info
+}
+
+pull based:
+collection service is responsible to retry in this case
+in pull based collection service needs to know about each daemon agent which
+can be an issues
+collection service would need to scale with the daemon agent since it is 
+consuming from all daemon agent which can be a problem
+
+
+message broker:
+daemon agents sends data to collection service which can then submit to
+kafka which can scale for high throughput 

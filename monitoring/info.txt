@@ -1,0 +1,26 @@
+a monitoring system contains 5 components
+
+• Data collection: collect metric data from different sources.
+• Data transmission: transfer data from source lo the metrics monitoring system.
+• Data storage: organize and store incoming data.
+• Alerting: analyze incoming data,detect anomalies and genrate alerts. The system must be able to send alerts to differnet communication channels
+• visualization: data in graphs etc 
+
+
+
+ccording to DB-engines [14), the two most popular time-series databases are InfluxDB [15] and Prometheus,
+which are designed to store large volumes of time-series data and quickly perform real- tim.e analysis on that data. 
+
+
+we need to consider pull or push mode for metrics collector
+
+for pull model:
+metrics collector needs to know about dns of each service, we can use zookeepr for service discovery here
+we can use multiple metrics collector, each metric collector collects metrics from a specific range of service
+
+for push model:
+In a push model, a collection agent is commonly installed on the server being monitored.
+A collection agent is a piece of long running software that collects metrics from the services running on the server and 
+push them to metrics collector.
+
+kafka is introduced to prevent data loss if timeseries db is unavailable

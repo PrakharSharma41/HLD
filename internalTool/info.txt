@@ -54,3 +54,5 @@ indexed on message
 
 manticore runs on a respective worker vm and mounts volume from a common fileserver, but this increases latency 
 due to network calls to file server
+
+

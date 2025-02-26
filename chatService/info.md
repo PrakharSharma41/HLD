@@ -38,3 +38,7 @@ id, conversation_name,
 
 conversation_users:
 conversation_id, user_id
+
+
+
+
