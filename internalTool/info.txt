@@ -55,4 +55,70 @@ indexed on message
 manticore runs on a respective worker vm and mounts volume from a common fileserver, but this increases latency 
 due to network calls to file server
 
+Use Elasticsearch if:
+✅ You need scalable, distributed full-text search (handles TBs of data). ✅ You require real-time analytics (e.g., log aggregation, APM, monitoring). ✅ You need complex querying (e.g., aggregations, fuzzy search, geo-search). ✅ You want a large ecosystem (e.g., Kibana, Logstash, Beats). ✅ You can afford the higher resource usage (RAM, CPU, storage overhead).
+🔹 Best for:
+* Search engines (e-commerce, site search, document retrieval).
+* Log & event analytics (e.g., ELK stack for observability).
+* Geospatial search (e.g., delivery, ride-hailing apps).
+
+Use ManticoreDB if:
+✅ You need lightweight and high-speed full-text search (faster than Elasticsearch for many queries). ✅ You want lower resource consumption (better for limited hardware). ✅ You require SQL-based querying (supports MySQL-compatible queries). ✅ You want real-time indexing without significant overhead. ✅ You need fast phrase searches with ranking optimizations.
+🔹 Best for:
+* Low-latency full-text search (e.g., chat apps, forums).
+* SQL-based applications needing search capabilities.
+* Embedded search inside MySQL or PostgreSQL applications.
+
+
+* ManticoreDB has native SQL support (MySQL-compatible). It allows you to run full-text searches directly within a SQL database.
+* Elasticsearch SQL is an abstraction on top of its JSON-based query DSL. It’s useful but not a full replacement for relational databases.
+
+Limitations of Elasticsearch SQL
+❌ No real relational joins – Only "join-like" operations via nested fields or parent-child relationships. ❌ No transactions or ACID compliance – Unlike traditional SQL databases. ❌ Limited update capabilities – Elasticsearch is optimized for search, not frequent updates. ❌ Not all SQL functions are supported – Some advanced SQL features like WINDOW functions are missing.
+
+
+
+
+HaProxy vs nginx
+When to Use Which?
+* Choose HAProxy if:
+    * You need the best performance for load balancing.
+    * Your focus is on distributing traffic across backends.
+    * Advanced traffic routing and high availability are critical.
+* Choose NGINX if:
+    * You need a versatile tool for web serving, reverse proxying, and caching.
+    * SSL termination and serving static content are part of your requirements.
+    * You want an easier configuration experience for simple setups.
+Health Checks
+* HAProxy:
+    * Provides robust, built-in health checks at both Layer 4 and Layer 7.
+    * More granular control over backend server health monitoring and failure recovery.
+* NGINX:
+    * Health checks are available in the open-source version but are less comprehensive compared to HAProxy.
+    * Advanced health check features (e.g., active health checks with custom thresholds) are typically part of NGINX Plus (the commercial version).
+
+
+
+
+Key Reasons Why HAProxy is Better for SSL Termination
+1️⃣ HAProxy Uses a Multi-Threaded Model (Better CPU Utilization)
+* HAProxy uses multi-threading, allowing it to fully utilize multiple CPU cores for SSL decryption.
+* Nginx (by default) uses a single-threaded event loop per worker process, which can cause CPU bottlenecks under heavy SSL traffic.
+* Result: HAProxy scales SSL termination better across multiple cores, reducing CPU bottlenecks.
+2️⃣ HAProxy Has Faster SSL Handshake Handling
+* HAProxy optimizes session resumption, reducing the number of full SSL/TLS handshakes.
+* It efficiently reuses TLS Session Tickets and Session IDs, reducing CPU usage.
+* Nginx also supports session caching, but HAProxy handles it more efficiently under high traffic.
+3️⃣ HAProxy Supports Asynchronous SSL Processing
+* HAProxy can offload SSL processing to separate threads, reducing the load on the main request-processing thread.
+* Nginx processes SSL in the main worker thread, making it more CPU-intensive.
+* Result: HAProxy can handle more SSL connections with lower CPU overhead.
+4️⃣ HAProxy Uses Built-in OpenSSL Optimizations (AES-NI)
+* HAProxy is designed to work with OpenSSL optimizations like AES-NI, providing hardware-accelerated encryption.
+* It has better integration with OpenSSL's multi-threaded engine, reducing CPU load.
+* Nginx requires manual tuning to achieve similar optimizations.
+5️⃣ HAProxy Has More Efficient Connection Management
+* HAProxy keeps TCP connections alive longer, reducing the need for frequent SSL handshakes.
+* It supports TLS Fast Open (TFO) and Keep-Alive tuning, which Nginx lacks by default.
+* This reduces CPU usage, especially in high-traffic environments.
 
