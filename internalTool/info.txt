@@ -18,6 +18,18 @@ RCA summary
 ai powered metrics
 support gpt integration
 
+APIS:
+GET /logs/metadata
+params: log_type,log_path
+response: log_bundle_path,is_analyzed,log_bundle_size,log_bundle_id,log_type
+
+POST /logs/analyze
+params: log_bundle_path
+response: status: inprogress, log_bundle_id, error_msg
+
+GET /logs/job_status
+params: log_bundle_id
+response: id, job_status,start_time,end_time
 
 what is actual use of haproxy?
 receives all requests and based on request header, if present sends to worker vm else routes to itself
@@ -122,3 +134,23 @@ Key Reasons Why HAProxy is Better for SSL Termination
 * It supports TLS Fast Open (TFO) and Keep-Alive tuning, which Nginx lacks by default.
 * This reduces CPU usage, especially in high-traffic environments.
 
+
+
+When to Use TimescaleDB ✅
+✔ Best for Long-Term Storage & Complex Queries:
+
+PostgreSQL-based, optimized for time-series data.
+SQL support makes it easy for data analysis.
+Efficient data compression (up to 90% storage savings).
+✔ Handles Complex Time-Series Use Cases:
+
+Ideal for IoT, financial data, event logging, and analytics.
+Supports joins, aggregates, and more advanced queries that Prometheus struggles with.
+✔ Better for Retention & Historical Analysis:
+
+Unlike Prometheus, it can store years of data efficiently.
+Continuous Aggregates for downsampling data over time.
+✔ Better for High Cardinality Data:
+
+Prometheus struggles with high cardinality (e.g., millions of unique labels).
+TimescaleDB handles high-cardinality workloads more efficiently.
