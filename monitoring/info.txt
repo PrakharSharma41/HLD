@@ -8,7 +8,7 @@ a monitoring system contains 5 components
 
 
 
-ccording to DB-engines [14), the two most popular time-series databases are InfluxDB [15] and Prometheus,
+according to DB-engines , the two most popular time-series databases are InfluxDB [15] and Prometheus,
 which are designed to store large volumes of time-series data and quickly perform real- tim.e analysis on that data. 
 
 
