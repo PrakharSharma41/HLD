@@ -1,3 +1,6 @@
+it is an observability tool that helps us in identifying system related issues, perform rca,
+triage complex issue and finding out rca
+
 FUNCTIONALITIES:
 
 1. Log ingestion:

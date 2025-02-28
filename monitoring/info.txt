@@ -24,3 +24,4 @@ A collection agent is a piece of long running software that collects metrics fro
 push them to metrics collector.
 
 kafka is introduced to prevent data loss if timeseries db is unavailable
+
