@@ -1,0 +1,66 @@
+FUNCTIONAL REQUIREMENTS:
+customer:
+1. search movie/concerts
+2. select theatre with time
+3. book/cancel movie tickets
+4. set location
+5. list bookings
+admin:
+add movie/concerts
+
+NON FUNCTIONAL REQUIREMENTS:
+consistent
+fault tolerant
+available
+
+use redis locking for optimistic locking
+
+DATABASE:
+users:
+user_id, name, email
+
+index on theatre table based on location
+theatre:
+theatre_id,name,location
+
+Index on theatre_id, show_time for fast filtering
+show:
+show_id,movie_id,theatre_id, show_time,screen_id
+
+screen:
+screen_id, bookedSeatCount
+
+seats_data:
+seat_id,screen_id,seat_number,seat_status
+
+booking:
+booking_id, user_id,show_id, booking_time,payment_status
+
+booking_seats:
+booking_id,seat_id
+
+
+elasticsearch table structure:
+{
+  "show_id": "SHOW12345",
+  "movie": {
+    "movie_id": "MOV789",
+    "title": "Dune: Part Two",
+    "genre": ["Sci-Fi", "Action"],
+    "language": "English",
+    "duration_minutes": 165
+  },
+  "theater": {
+    "theater_id": "THEATRE001",
+    "name": "IMAX Mumbai",
+    "location": "Mumbai, India"
+  },
+  "screen": {
+    "screen_id": "SCREEN1",
+    "total_seats": 200,
+    "available_seats": 150,
+    "booked_seats": ["A1", "A2", "B5", "B6"]
+  },
+  "show_time": "2025-03-10T19:30:00Z",
+  "price_per_ticket": 500
+}

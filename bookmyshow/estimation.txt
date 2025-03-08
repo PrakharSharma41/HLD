@@ -1,0 +1,46 @@
+Users: 50M monthly active users (MAU)
+Peak traffic: 5M daily active users (DAU)
+Peak bookings: 100K bookings per minute (during peak times)
+Seats per booking: ~3 seats per booking
+Cities covered: ~300 cities
+Total cinemas: ~5000 cinemas
+Total screens: ~15,000 screens
+Showtimes per screen/day: ~5 showtimes
+Seats per screen: ~200 seats
+
+
+Peak Read QPS (Queries per second)
+
+Users search for movies, venues, and seat availability.
+Assume 100M searches per day, 5M during peak hours.
+Peak Read QPS = 5M / (60 * 60) ≈ 1400 QPS
+Assume each search triggers 5 DB calls.
+Total DB Read QPS = 1400 * 5 = 7000 QPS
+
+
+
+Peak Write QPS (Ticket Booking)
+
+Assume 100K bookings per minute during peak hours.
+Peak Write QPS = (100K / 60) ≈ 1667 QPS.
+Each booking involves:
+Seat reservation
+Payment processing
+Confirmation & notification
+Total Write QPS ≈ 2000 QPS
+
+
+
+Booking Data Storage
+Each booking stores:
+
+UserID (8 bytes)
+ShowID (8 bytes)
+TheaterID (8 bytes)
+Seats (3 seats × 4 bytes = 12 bytes)
+Timestamp (8 bytes)
+Total per booking ≈ 44 bytes
+Daily bookings: 5M
+Yearly bookings: 1.8B
+Storage needed per year: 1.8B × 44 bytes ≈ 80GB (without indexing, replication, etc.)
+With replication (×3), indices, and logs → ~1TB per year.
