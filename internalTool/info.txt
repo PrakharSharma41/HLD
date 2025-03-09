@@ -67,18 +67,29 @@ table in manticore contains:
 id, message, filename_without_ext,filename,filepath,time,log_level,source_log_filename,pid,cvm_ip,anomaly,line_number
 indexed on message
 
+postgres metadata table:
+log_bundle_id, log_bundle_path,status, hosting_worker_vm_ip,bundle_size,bundle_type,is_analyzed,remote_log_bundle_path
+
 manticore runs on a respective worker vm and mounts volume from a common fileserver, but this increases latency 
 due to network calls to file server
 
 Use Elasticsearch if:
-✅ You need scalable, distributed full-text search (handles TBs of data).✅ You require real-time analytics (e.g., log aggregation, APM, monitoring).✅ You need complex querying (e.g., aggregations, fuzzy search, geo-search).✅ You want a large ecosystem (e.g., Kibana, Logstash, Beats).✅ You can afford the higher resource usage (RAM, CPU, storage overhead).
+✅ You need scalable, distributed full-text search (handles TBs of data).
+✅ You require real-time analytics (e.g., log aggregation, APM, monitoring).
+✅ You need complex querying (e.g., aggregations, fuzzy search, geo-search).
+✅ You want a large ecosystem (e.g., Kibana, Logstash, Beats).
+✅ You can afford the higher resource usage (RAM, CPU, storage overhead).
 🔹 Best for:
 * Search engines (e-commerce, site search, document retrieval).
 * Log & event analytics (e.g., ELK stack for observability).
 * Geospatial search (e.g., delivery, ride-hailing apps).
 
 Use ManticoreDB if:
-✅ You need lightweight and high-speed full-text search (faster than Elasticsearch for many queries).✅ You want lower resource consumption (better for limited hardware).✅ You require SQL-based querying (supports MySQL-compatible queries).✅ You want real-time indexing without significant overhead.✅ You need fast phrase searches with ranking optimizations.
+✅ You need lightweight and high-speed full-text search (faster than Elasticsearch for many queries).
+✅ You want lower resource consumption (better for limited hardware).
+✅ You require SQL-based querying (supports MySQL-compatible queries).
+✅ You want real-time indexing without significant overhead.
+✅ You need fast phrase searches with ranking optimizations.
 🔹 Best for:
 * Low-latency full-text search (e.g., chat apps, forums).
 * SQL-based applications needing search capabilities.
@@ -89,7 +100,10 @@ Use ManticoreDB if:
 * Elasticsearch SQL is an abstraction on top of its JSON-based query DSL. It’s useful but not a full replacement for relational databases.
 
 Limitations of Elasticsearch SQL
-❌ No real relational joins – Only "join-like" operations via nested fields or parent-child relationships.❌ No transactions or ACID compliance – Unlike traditional SQL databases.❌ Limited update capabilities – Elasticsearch is optimized for search, not frequent updates.❌ Not all SQL functions are supported – Some advanced SQL features like WINDOW functions are missing.
+❌ No real relational joins – Only "join-like" operations via nested fields or parent-child relationships.
+❌ No transactions or ACID compliance – Unlike traditional SQL databases.
+❌ Limited update capabilities – Elasticsearch is optimized for search, not frequent updates.
+❌ Not all SQL functions are supported – Some advanced SQL features like WINDOW functions are missing.
 
 
 
@@ -113,6 +127,8 @@ Health Checks
     * Advanced health check features (e.g., active health checks with custom thresholds) are typically part of NGINX Plus (the commercial version).
 
 
+Use HAProxy if your primary goal is simple load balancing with header-based routing. HAProxy is more lightweight and optimized for this.
+Use NGINX if you might later need caching, advanced request manipulation, or serving static content.
 
 
 Key Reasons Why HAProxy is Better for SSL Termination
@@ -157,3 +173,15 @@ Continuous Aggregates for downsampling data over time.
 
 Prometheus struggles with high cardinality (e.g., millions of unique labels).
 TimescaleDB handles high-cardinality workloads more efficiently.
+
+
+LuaScript
+
+LuaScript refers to scripting using the Lua programming language, often used to extend applications, add automation, or enable dynamic behavior.
+Lua is a lightweight, high-performance scripting language designed for embedding in larger applications. It is:
+✔ Fast → Small memory footprint, optimized for speed.
+✔ Embeddable → Used in games, databases, and networking tools.
+HAProxy supports Lua scripting to modify requests dynamically, such as:
+✔ Custom request routing
+✔ Header manipulation
+✔ Advanced logging
