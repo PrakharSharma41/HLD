@@ -3,20 +3,20 @@ triage complex issue and finding out rca
 
 FUNCTIONALITIES:
 
-1. Log ingestion:
-1. user to provide log bundle path
-2. automatically process log bundle as soon as it is available
+1 Log ingestion:
+1.1 user to provide log bundle path
+1.2 automatically process log bundle as soon as it is available
 
-2. Log browsing:
+2 Log browsing:
 all logs in one place, allows user tp service, node, ip  and time duration to see aggregate data from
 
-3. Log analysis:
-1. 1 click rule addition
-2. flag known issues
-3. real time browsing of critical logs, heatmap
-4. health of services
+3 Log analysis:
+3.1 1 click rule addition
+3.2 flag known issues
+3.3 real time browsing of critical logs, heatmap
+3.4 health of services
 
-4. AI/ML:
+4 AI/ML:
 RCA summary
 ai powered metrics
 support gpt integration

@@ -1,0 +1,96 @@
+FUNCTIONAL REQUIREMENTS:
+
+1. User actions: Create and delete jobs. 
+2. Retrieve a list of jobs created by the user.
+3. View the execution history for any given job.
+4. Job execution style: The system should support both one-time execution, recurring style
+5. Task fail strategy: The system should have the capability to support a retry feature
+
+assume 50M task to be executed daily
+
+
+Retrieve Operations
+
+Given a user_id, retrieve all jobs created by that user
+Retrieve all scheduled tasks that are scheduled to be executed right now (by scheduling service, operation(3) in the system-design-1 diagram)
+Retrieve all or the latest execution histories and their status related to a specific job_id
+
+
+Modification Operations
+
+Allow users to create or delete their job schedules
+Update the Job’s next execution timestamp byjob_id
+Update task status (Scheduled, Completed, Failed)
+
+
+our system is not directly coupled, so we can use nosql database
+
+DATABASE:
+
+Job table:
+user_id, job_id,is_recurring,interval,max_retry_count,created_time
+partition key is user_id
+sort_key is job_id
+
+Task_schedule:
+store the next execution time for each job. By doing this it will be easy for us to query all scheduled tasks for the current minute(as we execute our tasks in each minute). 
+job_id, next_execution_time
+partition key is next_execution_time
+sort key is job_id
+
+modified:
+job_id,segment,next_execution_time
+partition key is segment,next_execution_time
+sort key is job_id
+
+
+Task_execution_history:
+job_id, execution_time,status,retry_count,last_update_time
+partition key is job_id
+
+
+API:
+create_job
+POST /users/{user_id}/jobs
+request_params:
+   "executionInterval": "PT3H",
+   "maxRetryCount": 3,
+   "is_reccuring": true
+
+response-status: HTTP/1.1 201 Created
+response-body: 
+{
+   "job_id": "123456"
+}
+
+job_service:
+takes this input, create its detail in jobs table
+also store next_execution_time in Task_schedule table
+
+
+scheduling_service:
+1. polls the task schedule table every minute for pending tasks
+2. producing pending tasks to tasktopic in a queue for execution
+3. After the task is scheduled add one row to task_execution_history table with status = SCHEDULED . Check current job’s recurring status in job table, 
+   if it is_recurring job, update current job’s next_execution_time in task_schedule table.
+
+
+since we are going to have a high load, we can have multiple instances of 
+scheduling service(master-slave) architecture
+
+to prevent multiple slave nodes to pick up same tasks, we will add segment field to
+task_schedule table
+worker node will pick task with specific segment only
+
+When defining the segment interval, consider both your anticipated workload and the number of running scheduling service instances.
+
+
+execution_service:
+takes on the responsibility of subscribing to a Kafka topic named task. Its role involves consuming tasks from this topic and executing them as part of its functionality.
+
+Upon successful completion of task execution, the task execution service will update the execution status of the task as COMPLETED in the task_execution_history table.
+
+if task execution fails, execution service checks if task is retryable and can publish a topic
+in kafka, that can be picked by another consumer
+
+If the retry count has surpassed its limit, the task’s execution status will be updated FAILED and the task will be produced to task_dlqtopic. DLQ stands for Dead Letter Queue.
