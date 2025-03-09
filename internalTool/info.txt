@@ -185,3 +185,19 @@ HAProxy supports Lua scripting to modify requests dynamically, such as:
 ✔ Custom request routing
 ✔ Header manipulation
 ✔ Advanced logging
+
+
+kafka vs rabbitmq
+
+Since your system has 3 worker VMs processing tasks that take time, you need:
+✔ Reliable task distribution
+✔ Message acknowledgment & retries
+✔ Efficient handling of long-running tasks
+
+🔹 👉 RabbitMQ is the better choice because:
+1️⃣ Push-based message delivery → Ensures tasks are assigned quickly to available workers.
+2️⃣ Automatic retries → If a worker fails, RabbitMQ can requeue the task.
+3️⃣ Worker-level concurrency control → Each worker can handle one task at a time using prefetch limits.
+4️⃣ Better handling of long-running tasks → A worker will only acknowledge a task when it's fully processed.
+
+📌 Kafka is better for real-time event streaming, but RabbitMQ is better for your task queue because of worker-based task distribution and retries.
