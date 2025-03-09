@@ -1,0 +1,53 @@
+FUNCTIONAL REQUIREMENTS:
+
+1. matching: restaurant has accepted order and match delivery partner
+    1.1 Time(ETA) for delivery partner
+    1.2 Rating of delivery partner 
+    1.3 Fairness(number of delivery per day)
+2. tracking: track delivery partner
+
+
+
+CAPACITY ESTIMATION:
+
+TPS:
+1 million deliveries one day
+100k riders(per city maybe)
+
+200 orders per restaurant per day
+200K restaurant in swiggy
+
+200K*200 = 40M orders per day
+
+50% order during peak hours(lunch/dinner)
+peak hours approx 4 hours
+(40M*0.5)/14400  approx 1389 orders/second
+
+assume each order invoke average 10 APIS
+~14k tps
+
+Storage:
+each order stoes 5kb(metaadta,restaurant,customer,deliver):
+
+daily: 5*10^3*40M approx 200GB
+yearly: 200gb *365 approx 73TB
+
+for location db, we can use quadtrees or we can store locations in memory
+we can store driver location and eventually update the db
+
+sql db for rider's backup location
+
+rider_location:
+rider_id, name
+
+rider_rating:
+
+cache:
+rider_id,location,rating,number_of_delivery_per_day
+
+delivery partner will have a persistent connection with delivery matching service
+
+person can make the qpi call to rider manager to get location updates
+
+API CALL:
+GET riderLocation(userId,orderId) -> riderLocation
