@@ -1,45 +1,78 @@
-publish 
-import pika
+<dependency>
+    <groupId>com.rabbitmq</groupId>
+    <artifactId>amqp-client</artifactId>
+    <version>5.16.0</version>
+</dependency>
 
-# Connect to RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
-# Declare a queue (ensures it exists)
-channel.queue_declare(queue='task_queue', durable=True)
+public class Producer {
+    private static final String QUEUE_NAME = "task_queue";
 
-# Publish a message
-message = "Hello, RabbitMQ!"
-channel.basic_publish(
-    exchange='',
-    routing_key='task_queue',
-    body=message,
-    properties=pika.BasicProperties(delivery_mode=2)  # Make message persistent
-)
+    public static void main(String[] args) {
+        try {
+            // Create a connection to RabbitMQ server
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost("localhost");  // RabbitMQ server
+            try (Connection connection = factory.newConnection();
+                 Channel channel = connection.createChannel()) {
 
-print(f" [x] Sent '{message}'")
+                // Declare a queue (ensuring it exists)
+                boolean durable = true;  // Make queue persistent
+                channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
 
-# Close the connection
-connection.close()
+                // Publish a message
+                String message = "Hello, RabbitMQ!";
+                channel.basicPublish("", QUEUE_NAME, 
+                    new com.rabbitmq.client.AMQP.BasicProperties.Builder()
+                        .deliveryMode(2)  // Make message persistent
+                        .build(),
+                    message.getBytes("UTF-8"));
 
-consume
+                System.out.println(" [x] Sent '" + message + "'");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
 
-import pika
+import com.rabbitmq.client.*;
 
-# Connect to RabbitMQ server
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
+public class Consumer {
+    private static final String QUEUE_NAME = "task_queue";
 
-# Declare the same queue to ensure it exists
-channel.queue_declare(queue='task_queue', durable=True)
+    public static void main(String[] args) {
+        try {
+            // Create connection to RabbitMQ
+            ConnectionFactory factory = new ConnectionFactory();
+            factory.setHost("localhost");  // RabbitMQ server
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
 
-# Define callback function to process messages
-def callback(ch, method, properties, body):
-    print(f" [x] Received {body.decode()}")
-    ch.basic_ack(delivery_tag=method.delivery_tag)  # Acknowledge message
+            // Declare queue to ensure it exists
+            boolean durable = true;
+            channel.queueDeclare(QUEUE_NAME, durable, false, false, null);
 
-# Consume messages from the queue
-channel.basic_consume(queue='task_queue', on_message_callback=callback)
+            System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
-print(" [*] Waiting for messages. To exit press CTRL+C")
-channel.start_consuming()
+            // Define callback for processing messages
+            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String message = new String(delivery.getBody(), "UTF-8");
+                System.out.println(" [x] Received '" + message + "'");
+
+                // Acknowledge message
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            };
+
+            // Start consuming messages (autoAck = false for manual acknowledgment)
+            boolean autoAck = false;
+            channel.basicConsume(QUEUE_NAME, autoAck, deliverCallback, consumerTag -> {});
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
