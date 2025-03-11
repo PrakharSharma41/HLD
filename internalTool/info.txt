@@ -201,3 +201,9 @@ Since your system has 3 worker VMs processing tasks that take time, you need:
 4️⃣ Better handling of long-running tasks → A worker will only acknowledge a task when it's fully processed.
 
 📌 Kafka is better for real-time event streaming, but RabbitMQ is better for your task queue because of worker-based task distribution and retries.
+
+
+rabbitmq workflow:
+
+so create a connection, then create a channel from that connection, declare an exchange and its type, declare a queue and  bind it to exchange using routing key, publisher
+publish the message to that exchange with routing key, which gets published to that queue and consumed by that consumer
