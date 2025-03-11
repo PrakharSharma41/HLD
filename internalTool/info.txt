@@ -65,10 +65,11 @@ data is stored in disk, manticore brings them to memory in form of batch with ma
 table in manticore contains:
 
 id, message, filename_without_ext,filename,filepath,time,log_level,source_log_filename,pid,cvm_ip,anomaly,line_number
-indexed on message
+indexed on message,log_bundle_id
 
 postgres metadata table:
-log_bundle_id, log_bundle_path,status, hosting_worker_vm_ip,bundle_size,bundle_type,is_analyzed,remote_log_bundle_path
+log_bundle_id, log_bundle_path,job_status,start_time,end_time, hosting_worker_vm_ip,bundle_size,
+bundle_type,is_analyzed,remote_log_bundle_path
 
 manticore runs on a respective worker vm and mounts volume from a common fileserver, but this increases latency 
 due to network calls to file server
