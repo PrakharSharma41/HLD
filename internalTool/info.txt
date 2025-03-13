@@ -21,6 +21,9 @@ RCA summary
 ai powered metrics
 support gpt integration
 
+rules in our tool is basically a combination of properties from a log line like 
+    log_level, log_message,source_file, remediation, cause, problem
+
 APIS:
 GET /logs/metadata
 params: log_type,log_path
@@ -208,3 +211,33 @@ rabbitmq workflow:
 
 so create a connection, then create a channel from that connection, declare an exchange and its type, declare a queue and  bind it to exchange using routing key, publisher
 publish the message to that exchange with routing key, which gets published to that queue and consumed by that consumer
+
+
+rabbitmq health checks check if worker vm rabbitmq connection is active or not and manticore is running on that vm or not
+
+what if manticore completes the processing but fails to update the postgres db
+    1. use backoff retry mechanism
+    2. create a table in manticore that tracks if postgres update is successful
+        CREATE TABLE update_queue (
+        id INT,
+        status STRING,
+        retry_count INT
+        );
+    3. after retry exceeds a threshold, update grafana to trigger alerts
+
+What if manticore goes down in between processing
+    in this case, worker vm is not sending the ack back to rabbitmq, the tcp connection times out and message is requed
+    Worker VM can send alerts to Grafana when Manticore is down and retries have failed multiple times
+
+
+What Happens If the Whole Worker VM Crashes?
+    RabbitMQ uses heartbeats, it detects when a worker is down
+    If the entire Worker VM crashes (not just Manticore), the RabbitMQ connection is lost, and:
+    The message remains unacked.
+    RabbitMQ detects the broken connection and requeues the message.
+    Another healthy worker picks it up.
+
+What if rabbitmq is down?
+    it is restarted by systemd with exponential backoff
+    and now if metadata api call comes, response is sent from postgres
+    if analyze api call comes, it reads from postgres db and then puts in queue, if it is down error is shown to ui
