@@ -25,6 +25,7 @@ rules in our tool is basically a combination of properties from a log line like
     log_level, log_message,source_file, remediation, cause, problem
 
 APIS:
+dont use metadata api call
 GET /logs/metadata
 params: log_type,log_path
 response: log_bundle_path,is_analyzed,log_bundle_size,log_bundle_id,log_type
@@ -241,3 +242,9 @@ What if rabbitmq is down?
     it is restarted by systemd with exponential backoff
     and now if metadata api call comes, response is sent from postgres
     if analyze api call comes, it reads from postgres db and then puts in queue, if it is down error is shown to ui
+
+how idempotency of api is maintained?
+    what if someone sends multiple analyze call in parallel
+    1. from frontend side, analyze button is disabled
+    2. each analyze api call inserts metadata in postgres with remote log bundle path as primary key which is unique
+    and then message is published in rabbitmq
