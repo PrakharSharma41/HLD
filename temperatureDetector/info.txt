@@ -1,0 +1,89 @@
+You have a huge area of around 10 mil km². You have sensors in every 10 km² that send you tempareture data. Design a system to show current temprature and also supports to query past tempratures.
+
+FUNCTIONAL REQUIREMENTS:
+1. Real-time temperature updates from sensors.
+2. Historical queries for past temperatures.
+3. Efficient data ingestion and storage.
+4. Scalability to handle millions of sensors.
+
+
+ESTIMATION:
+1 sensor per 10 km² → 1M sensors for 10M km².
+assume each sensor send data per minute 
+1M writes per minute (1,000,000 messages/minute).
+1.44 billion readings per day.
+
+
+APIS:
+    POST /update-temp
+    params: location, timestamp, temperature
+    response: 200
+
+    GET /get-temp
+    params: location, current_timestamp
+    response: temperature
+
+    GET /get-temp-list
+    params: location, from_timestamp, to_timestamp
+    response: List<(Temperatur, TimeStamp)>
+
+use kafka since it supports such high throughput
+
+Kafka Design:
+    Topics:
+        temperature_readings
+    Partitions:
+        Partition key = geohash(location)
+    Ensures sensors in the same area go to the same partition.
+    Consumer Groups:
+        Real-time consumers update live temperature.
+        Batch consumers process historical storage.
+
+nosql(cassandra/nosql/influxdb for storing data for faster  lookups)
+
+cassandra schema: 
+temperature_data (
+    location_id TEXT,  // Geohash of the location
+    timestamp TIMESTAMP,
+    temperature FLOAT,
+    PRIMARY KEY (location_id, timestamp)
+) WITH CLUSTERING ORDER BY (timestamp DESC);
+
+Why InfluxDB?
+Optimized for Time-Series Data
+
+Stores data in a compressed and efficient format.
+Time-based indexing ensures fast queries.
+Downsampling & retention policies help manage historical data.
+Built-in Time-Series Queries
+
+InfluxDB has a powerful query engine (Flux/SQL-like queries).
+Efficient aggregation (e.g., mean(), median(), max() on time ranges).
+Supports continuous queries for real-time analytics.
+Retention Policies & Auto-Expiration
+
+Data can be automatically expired (e.g., keep 30 days of real-time data).
+Older data can be downsampled and stored in lower-resolution.
+
+Partition Key: location_id → Distributes data across nodes.
+Clustering Key: timestamp DESC → Fast retrieval of latest values.
+
+InfluxDB automatically partitions data into shards based on time,
+but you can still distribute data across multiple nodes based on location using tags and measurement separation.
+
+InfluxDB automatically indexes tags, so queries filtered by location will be efficient.
+
+Measurement: temperature_readings
+Tags: location_id (geohash), sensor_id
+Fields: temperature
+Timestamp: auto-indexed
+
+Deploy InfluxDB Clusters with Location-Based Sharding (Enterprise)
+💡 If you need a multi-node cluster, InfluxDB Enterprise Edition allows automatic sharding based on both time and location across multiple nodes.
+
+You can deploy multiple InfluxDB nodes where:
+Each node handles a different geographic region.
+Queries for specific locations will be routed only to the relevant nodes.
+The coordinator node will merge results when querying multiple locations.
+✅ Best for massive-scale applications, but requires InfluxDB Enterprise.
+
