@@ -9,6 +9,13 @@ notification (use notification service to send notificaiton from message queue)
 message synchronization across device (maintain counter for last read message per user)
 online presence : use presence server(send heartbeat)
 
+
+
+CAPACITY ESTIMATIONS:
+2B Total user DAU 300M 
+each person sends messages 10 msg to 10 people 300M*100 approx 30B msg per day  on festival 150B per day
+each message 100 byte 150B*100byte approx 15TB per day
+
 use websockets
 
 
@@ -21,24 +28,25 @@ Database to use:
 tradeoff between consistency, availability, shard our database
 we need more availability and less consistency for chat app
 use nosql db with builtin sharding capabilities
-
+users might use features that require random access of data, such as search, view your mentions, jump to specific messages, etc. 
 • Key-value stores allow easy horizontal scaling.
 • Key-value stores provide very low latency to access data.
 • Relational databases do not handle long tail [3] of data well. When the indexes grow large, random access is expensive.
 
 Database tables
+
 users:
-username, lastActive
+user_id,username, lastActive,status:online/offline
 
 messages:
-message_id,user_id,text, media_url,conversation
+message_id,from_user,to_user,time,content
 
-conversation:
-id, conversation_name, 
+group_message:
+channel_id,message_id,user_id,content,created_at
 
-conversation_users:
-conversation_id, user_id
+group_members:
+channel_id,user_id
 
-
-
+message_sync:
+user_id,device_id,last_message_offset
 
