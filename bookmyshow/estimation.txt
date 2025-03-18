@@ -9,27 +9,17 @@ Showtimes per screen/day: ~5 showtimes
 Seats per screen: ~200 seats
 
 
-Peak Read QPS (Queries per second)
+Estimating Daily Traffic
+Assuming:
 
-Users search for movies, venues, and seat availability.
-Assume 100M searches per day, 5M during peak hours.
-Peak Read QPS = 5M / (60 * 60) ≈ 1400 QPS
-Assume each search triggers 5 DB calls.
-Total DB Read QPS = 1400 * 5 = 7000 QPS
+100M monthly active users (MAUs)
+Peak traffic during movie releases
+Average ticket bookings per user per month = 5
+Daily active users (DAU) ≈ 10M (10% of MAUs)
+Average number of bookings per second:
+100𝑀×5 / 30×24×3600≈200fTPS (Transactions Per Second)
 
-
-
-Peak Write QPS (Ticket Booking)
-
-Assume 100K bookings per minute during peak hours.
-Peak Write QPS = (100K / 60) ≈ 1667 QPS.
-Each booking involves:
-Seat reservation
-Payment processing
-Confirmation & notification
-Total Write QPS ≈ 2000 QPS
-
-
+Peak traffic can be 10x normal → ~2000 TPS during peak hours.
 
 Booking Data Storage
 Each booking stores:

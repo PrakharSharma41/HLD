@@ -40,6 +40,34 @@ booking_seats:
 booking_id,seat_id
 
 
+• A relational database works well with read-heavy and write less frequently workflow. This is because the number of users who visit the hotel website/apps is a few orders of magnitude higher than those who actually make reservations. NoSQL databases
+are generally optimized for writes and the relational database works well enough for read-heavy workflow.
+• A relational database provides ACID (atomicity, consistency, isolation, durability) guarantees. ACID properties are important for a reservation system. Without those properties, it's not easy to prevent problems such as negative balance, double charge, double reservations, etc. ACID properties mal<:e application code a lot simpler and
+make the whole system easier to reason about. A relational database usually provides these guarantees.
+• A relational database can easily model the data. The structure of the business data is very clear and the relationship between different entities (hotel, room, room_type, etc) is stable. This kind of data model is easily modeled by a relational database.
+
+
+
+Hybrid Approach
+1️⃣ Use Redis for temporary seat locks (Pessimistic Locking) to prevent concurrent booking attempts.
+2️⃣ Use Optimistic Locking in SQL to ensure no conflicts happen at confirmation time.
+3️⃣ If a payment fails or the TTL expires, release the seat back to availability.
+
+
+How the Hybrid System Works
+Movie Search (Elasticsearch)
+
+User searches → Query Elasticsearch.
+Elasticsearch returns relevant theaters & shows.
+UI fetches real-time seat availability from SQL.
+Seat Booking (SQL & Redis)
+
+User selects seats.
+Redis locks the seat (SETNX).
+Payment processed.
+If successful → Seat status in SQL updated.
+Else → Lock expires, seat becomes available.
+
 elasticsearch table structure:
 {
   "show_id": "SHOW12345",
