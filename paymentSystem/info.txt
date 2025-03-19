@@ -7,6 +7,8 @@ NON FUNCTIONAL REQUIREMENTS:
 reliability
 fault tolerance
 reconcilitaion is required to make sure payment is consistent across system
+idempotency
+retry handle
 
 can we use psp here instead of directly making payment ourself(requires lots of safety checks)
 ESTIMATION:

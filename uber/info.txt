@@ -59,6 +59,7 @@ cab:
 driverid, cabid, regNo
 
 can use geospatial index in postgres
+
 location:
 driver_id, location
 
