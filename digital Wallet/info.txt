@@ -1,0 +1,28 @@
+REQUIREMENTS:
+1. 100kTPS
+2. send tramsfers between accounts
+3. variations: strong read consistency
+4. auditing
+
+
+approach 1: 
+use cdc, aws steps(similar to saga), dynamodb(prefer sql)
+
+use OLTP database for transactions
+An OLTP database is designed for fast, real-time transactional queries, such as inserts, updates, and deletes. It is optimized for high concurrency and quick response times.
+High Throughput & Low Latency → Handles millions of short, fast transactions per second.
+Normalized Data Model → Uses SQL (Relational Databases like MySQL, PostgreSQL) to maintain data integrity.
+ACID Compliance → Ensures Atomicity, Consistency, Isolation, Durability for reliable transactions.
+
+
+use OLAP database for auditing
+An OLAP database is designed for complex queries, data aggregation, and analytics rather than transactional workloads. Unlike OLTP databases,
+ which handle fast read/write operations for transactions
+
+transaction db:
+sender_id,transaction_id(partition key),receiver_id,amount,timestamp,status:Received/Complete
+
+AWS steps:
+it can also be used to do several steps, it is similar to AWS lambda function
+but it does several steps and its really good at retries
+
