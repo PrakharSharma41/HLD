@@ -1,0 +1,39 @@
+FUNCTIONAL REQUIREMENTS:
+1. Inventory : search,list
+2. Delivery: notifications through email or sms
+3. payments
+4. Cart: add/remove items
+
+
+Inventory is handled using elastic search since it will provide fast search 
+
+inventory data is also stored in rdbms and then it is synced to elastic search
+rdbms is the source of truth
+
+MONITORING:
+store metrics to monitor entire system using  a metric system
+metrics:
+1. request on order
+2. request timedout(count)
+
+
+DATABASE:
+
+products db and user db is sql
+products: product_id,product_name,seller_id,rating,product_count
+comments: product_id, comment_id,text
+product_image: image_id,product_id, image_link
+
+use nosql for orders Eventual consistency is fine for products & users (use replicas for reads).
+orders: user_id,order_id, order_status,payment_status
+products: product_id,order_id,product_count
+
+
+cart db is nosql(cart will have expiry in redis using ttl)
+carts: cart_id,user_id, cart_name
+products: product_id,product_count,cart_id
+
+elastic search data as well
+
+IMAGE STORAGE:
+s3 as object store for image

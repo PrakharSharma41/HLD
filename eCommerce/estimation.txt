@@ -1,0 +1,39 @@
+1. Amazon has over 300 million active customers worldwide.
+
+Assume 50% of users are monthly active → 150M MAU
+Assume 10% are daily active → 30M DAU
+Assume peak traffic is 5x the average → 150M peak requests/day
+
+
+2. Number of Orders per Day
+Suppose 5% of daily active users place an order.
+That’s 1.5M orders/day.
+Each order consists of multiple items:
+
+Assume an average of 3 items per order → 4.5M items/day.
+At peak hours (10% of the day), the system must handle:
+
+150k orders per hour
+2.5k orders per minute
+40 orders per second
+
+3. Read vs. Write Ratio
+Assume:
+
+50 reads per write (users browsing vs. ordering)
+Orders/day = 1.5M writes
+Total requests/day ≈ 75M writes + 3.75B reads
+Peak request rate: 50K requests/sec
+
+4. Storage Estimation
+Each order stores:
+
+1KB for order metadata
+1KB per item
+1.5M × (1KB + 3 × 1KB) = 6GB/day
+For 10 years (with replication and indexing overhead, ~10x storage):
+
+6GB × 365 × 10 × 10 ≈ 21.9PB
+Assuming 20% orders contain images (e.g., receipts, invoices, product images), add another 10PB.
+
+Total storage for orders ~32PB.
