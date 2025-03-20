@@ -26,3 +26,9 @@ AWS steps:
 it can also be used to do several steps, it is similar to AWS lambda function
 but it does several steps and its really good at retries
 
+approach 2: 
+use sharded PostgreSQL
+
+approach3:
+based on approach 2, but a user balance will be divided into multiple shards,
+this will allow high number of parallel transactions 
