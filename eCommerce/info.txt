@@ -37,3 +37,6 @@ elastic search data as well
 
 IMAGE STORAGE:
 s3 as object store for image
+
+we will have a CDC(change data capture) between sql(products db) and elasticsearch
+using kafka which is used to track and capture changes and propagate in real time
