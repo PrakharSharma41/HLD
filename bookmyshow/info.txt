@@ -92,3 +92,5 @@ elasticsearch table structure:
   "show_time": "2025-03-10T19:30:00Z",
   "price_per_ticket": 500
 }
+
+Adding a queue before seat selection is a great way to handle massive traffic spikes fairly. It prevents SQL/Redis overload and ensures that users select seats in a controlled manner.
