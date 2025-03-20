@@ -13,6 +13,11 @@ The system should be scalable and efficient.
 
 DATABASE:
 
+we can store tweets and users information in nosql database
+store followers data in graph database
+we can shard data based on user_id because if a user want to see tweets of followers, service can search for shard containing 
+that follower id
+
 user:
 user_id, name, email
 
@@ -28,10 +33,7 @@ activity_id, user_id,activity_time
 activity_likes:
 activity_id,like_count
 
-we can store tweets and users information in nosql database
-store followers data in graph database
-we can shard data based on user_id because if a user want to see tweets of followers, service can search for shard containing 
-that follower id
+
 
 Retweets
 Retweets are one of our extended requirements. To implement this feature, we can simply create a new tweet with the user id of the user retweeting the original tweet and
