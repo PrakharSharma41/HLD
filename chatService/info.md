@@ -40,9 +40,11 @@ user_id,username, lastActive,status:online/offline
 
 messages:
 message_id,from_user,to_user,time,content
+For private chats, store messages with (user1_id, user2_id) as a partition key
 
 group_message:
 channel_id,message_id,user_id,content,created_at
+partition key based on channel_id
 
 group_members:
 channel_id,user_id
