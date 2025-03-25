@@ -1,0 +1,51 @@
+asked in gojek system design round: (vague question for me)
+verdict: rejected
+
+design a config service that takes a random config from user ans store it in database
+example:
+{distance: "5km",
+city: "bangalore"}
+can have random properties in config
+
+low write and high read system
+
+FR:
+1. user adding config for any use case
+2. user can see list of config that has been added
+3. user delete config
+4. auditing the configs added
+
+client:
+1. client can see a config based on some params
+
+NFR:
+1. eventual consistency, low latency, fault tolerant, idempotent apis
+2. retry mechanism:
+  2.1 config add failed
+ 
+
+use amazon dynamodb as nosql key value database, but it doesnt support put operation(did not know that)
+
+
+* Increased complexity by unnecessarily providing more components like Redis(not required since it can cause stale data before write)
+
+dynamodb data:
+
+"delivery distance":{
+    "user_name":""
+    "config_property":[{
+        "distance":"",
+        "city":""
+    },
+    {""}
+    ]
+}
+to update config_property put operation is not supported, so in a write operation, i cannot fetch previous config_properties
+using a cache since it may have stale entries
+
+POINTS:
+
+Use DynamoDB’s UpdateExpression with list_append() to append new values atomically.
+Implement exponential backoff with retries for failed writes to handle transient failures.
+Include a request ID or timestamp versioning in writes.
+Use a UUID (request_id) or a hash of the request payload.
