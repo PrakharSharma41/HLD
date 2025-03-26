@@ -1,0 +1,26 @@
+Client
+Watch workspace for changes
+Upload or download changes to file from remote server
+Handle the conflicts due to offline or concurrent updates
+
+
+Meta Service
+Meta Service is responsible for synchronizing the file metadata from client to server. It’s also responsible to figure out the change set for different clients and broadcast it to them using Notification Service.
+
+When a client comes online, it pings Meta Service for an update. Meta Service determines the change set for that client by querying the Metadata DB and returns the change set.
+
+If a client updates a file, Meta Service again determines the change set for other clients watching that file and broadcasts the change set via Notification Service.
+
+
+Block Service
+Block Service interacts with block storage for uploading and downloading of files. Clients connect with Block Service to upload or download file chunks.
+
+When a client finishes downloading file, Block Service notifies Meta Service to update the metadata. When a client uploads a file, Block Service on finishing the upload to block storage, 
+notifies the Meta Service to update the metadata corresponding to this client and broadcast messages for other clients.
+
+
+Notification Service
+Notification Service broadcasts the file changes to connected clients making sure any change to file is reflected all watching clients instantly.
+In Server Sent Events, client establishes a long term persistent connection with server. This connection is used to send events from server to client. There is no timeout and contain remains alive till the client remains on network.
+
+

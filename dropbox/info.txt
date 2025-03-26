@@ -1,0 +1,64 @@
+https://systemdesignprimer.com/dropbox-system-design/
+
+Functional Requirements
+1. Users should be able to sign up using their email address and subscribe to a plan. If they don’t subscribe, they will get 1 GB of free storage.
+2. Users should be able to upload and download their files from any device.
+3. Users should be able to share files and folders with other users.
+4. Users should be able to upload files up to 1 GB.
+5. System should support automatic synchronization across the devices.
+6. System should support offline editing. Users should be able to add/delete/modify files offline and once they come online, 
+7. changes should be synchronized to remote server and other online devices.
+
+Non-functional requirements
+1. System should be highly reliable. Any file uploaded should not be lost.
+2. System should be highly available.
+
+Client
+
+Client here means desktop or mobile application which keeps a watch on user’s workspace 
+and synchronizes the files with remote server.
+
+Watch workspace for changes
+Upload or download changes to file from remote server
+Handle the conflicts due to offline or concurrent updates
+Update file metadata on remote server if they change
+
+Client Metadata Database: Client Metadata Database stores the information about different files in workspace, file chunks, chunk version and file location in the file system. This can be implemented using a lightweight database like SQLite.
+
+Chunker: Chunker splits the big files in to chunks of 4 MB. This also reconstructs the original file from chunks.
+
+Watcher: Watcher monitors for file changes in workspace like update, create, delete of files and folders. Watcher notifies Indexer about the changes.
+
+Indexer: Indexer listens for the events from watcher and updates the Client Metadata Database with information about the chunks of modified file. It also notifies Synchronizer after committing changes to Client Metadata Database.
+
+Synchronizer: Synchronizer listens for events from Indexer and communicates with Meta Service and Block service for updating meta data and modified chunk of file on remote server respectively. It also listens for changes broadcasted by Notification Service and downloads the modified chunks from remote server.
+
+
+APIS:
+GET /api/v1/objects?local_object_id=<Max object_id present locally>&device_id=<Unique Device Id>
+200 OK
+{
+  new_objects: [
+    {
+      object_id:
+      object_type:
+      name:
+      chunk_ids: [
+        chunk1,
+        chunk2,
+        chunk3
+      ]
+    }
+  ]
+}
+
+Meta Service will check the database and return an array of objects containing name of object, object id, object type and an array of chunk_ids. Client calls the Download Chunk API with 
+these chunk_ids to download the chunks and reconstruct the file.
+
+Metadata DB is sharded based on object_id. 
+Our hash function will map each object_id to a random server where we can store the file/folder metadata. To query for a particular object_id, service can determine the database server using same hash function and query for data. 
+
+
+when a client makes changes to a chunk, we send the request to block service to store that chunk and
+update in meta service, so that it will update its db and also sends message to notification service
+

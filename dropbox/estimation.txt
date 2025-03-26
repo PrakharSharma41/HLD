@@ -1,0 +1,15 @@
+Assumptions
+
+Total number of users = 500 million
+Total number of daily active users = 100 million
+Average number of files stored by each user = 200
+Average size of each file = 100 KB
+Total number of active connections per minute = 1 million
+
+
+Storage Estimations
+Total number of files = 500 million * 200 = 100 billion
+Total storage required = 100 billion * 100 KB = 10 PB
+
+
+The system needs to deal with huge volume of read and write data and their ratio will remain almost same. Hence while designing the system, we should focus on optimizing the data exchange between client and server.
