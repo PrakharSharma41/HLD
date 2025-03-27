@@ -1,0 +1,62 @@
+https://systemdesignschool.io/problems/youtube/solution
+
+FUNCTIONAL REQUIREMENTS:
+
+Viewers' Requirements:
+1. Immediate video playback upon request
+2. Consistent viewing experience regardless of traffic spikes
+3. Compatibility across different devices and network speeds
+
+Creators' Requirements:
+1. Straightforward video upload URL procurement
+2. Efficient file transfer to the server for various video sizes
+3. Confirmation of successful upload and encoding
+
+ESTIMATION:
+• Assume the product has 5 million daily active users (DAU). • Users watch 5 videos per day.
+• 10% of users upload 1 video per day.
+• Assume the average video size is 300 MB.
+• Total daily storage space needed: 5 million * 10% * 300 MB = 150TB
+
+
+Transcoding servers: 
+Video transcoding is also called video encoding. 
+It is the process of converting a video format to other formats (MPEG, HLS, etc)  to ensure compatibility across a wide range of devices and internet connection speeds.
+which provide the best video streams possible for different devices and bandwidth capabilities.
+
+
+Metadata contains information about video URL, size, resolution, format, user info, etc.
+
+videos can be downloaded and uploaded in chunk to reduce latency
+
+for security reasons and enable only authorized users to upload videos, we will have a pre signed URL
+
+client makes api call to api servers to get the pre signed url, client then uploads the videos with pre signed url
+
+Generating Signed URLs: 
+The Video Upload Service obtains a signed URL from the Storage Service, which facilitates direct access to the object storage systems (e.g., Amazon S3, Google Cloud Storage, or Azure Blob Storage). A signed URL contains a cryptographic signature, 
+granting the holder permission to perform specific actions (like uploading a file) within a designated timeframe.
+
+
+OPTIMIZATION:
+transcoding servers split the videos into smaller chunks
+
+Videos are split into smaller chunks (GOP-aligned segments, e.g., 2–10 seconds each). These chunks are then:
+Replicated across multiple CDNs to ensure fast access.
+
+Cached closer to the user in edge locations (PoPs - Points of Presence).
+
+How Does the Client Fetch the Video?
+1. When a user watches a video:
+2. The client requests the HLS/DASH playlist file (e.g., .m3u8 or .mpd).
+3. A CDN selection algorithm (via DNS or an edge network) determines the best CDN for that user.
+4. The player downloads video chunks from the closest and fastest CDN.
+
+What is GOP Alignment?
+GOP (Group of Pictures) alignment refers to ensuring that all video chunks start with a keyframe (I-frame) and follow a consistent pattern of frames. This is crucial for efficient video streaming, adaptive bitrate (ABR) switching, and seeking.
+
+the file_path in videos table contains the master playlist url in CDN
+The video player fetches this master playlist and selects the best resolution dynamically.
+
+alternate design could be separate entries for each video quality
+

@@ -1,0 +1,64 @@
+📌 Step-by-Step Flow
+1️⃣ User Requests a Video
+User clicks on a video (video_id = 101).
+
+The frontend sends a request to the backend:
+GET /videos/101
+
+2️⃣ Backend Fetches the Master Playlist URL from the Database
+✅ Videos Table (Stores the Master Playlist URL)
+
+video_id	title	    file_path (Master Playlist URL)
+101	        Sample 1	https://cdn.example.com/videos/101/master.m3u8
+📌 Backend responds:
+{
+  "video_id": 101,
+  "title": "Sample 1",
+  "playlist_url": "https://cdn.example.com/videos/101/master.m3u8"
+}
+
+
+3️⃣ Frontend Loads the Master Playlist (master.m3u8)
+Once the video player gets the Master Playlist URL, it loads it in the browser.
+
+📌 Master Playlist (master.m3u8)
+
+#EXTM3U
+#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360
+https://cdn.example.com/videos/101/360p.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=1500000,RESOLUTION=1280x720
+https://cdn.example.com/videos/101/720p.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=3000000,RESOLUTION=1920x1080
+https://cdn.example.com/videos/101/1080p.m3u8
+The video player selects the best quality (720p.m3u8) based on network conditions.
+
+
+4️⃣ Frontend Fetches the Chunk Playlist (720p.m3u8)
+📌 720p Playlist (720p.m3u8)
+
+#EXTM3U
+#EXT-X-TARGETDURATION:10
+#EXTINF:10.0,
+https://cdn.example.com/videos/101/720p/chunk1.ts
+#EXTINF:10.0,
+https://cdn.example.com/videos/101/720p/chunk2.ts
+#EXTINF:10.0,
+https://cdn.example.com/videos/101/720p/chunk3.ts
+Now, the player starts downloading chunks one by one.
+
+5️⃣ Chunks Are Served from the CDN
+The browser fetches and plays chunks:
+
+https://cdn.example.com/videos/101/720p/chunk1.ts
+https://cdn.example.com/videos/101/720p/chunk2.ts
+Since CDNs cache video files, users get fast and low-latency playback.
+
+
+Master Playlist URL Terminology
+The Master Playlist URL is a manifest file (typically with a .m3u8 extension for HLS or .mpd for DASH) that contains references to multiple video renditions (qualities).
+
+
+if a video is replicated at multiple cdns, in the file_path in videos table, we can store a logical url that points to a 
+backend and in that backend we can store all cdn urls for that video
