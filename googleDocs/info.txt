@@ -1,0 +1,93 @@
+https://vishal-vishal-gupta48.medium.com/google-docs-hld-high-level-system-design-d2e62f1d7ff5
+https://systemdesignschool.io/problems/google-doc/solution
+
+FUNCTIONAL REQUIREMENTS:
+1. Single User Editing: Single-user CRUD Operations in the Browser: Users can create, read, update, and delete documents directly in their web browser.
+2. Multi-user Collaborative Editing: The service must ensure events are processed even if system components fail, maintaining reliability for critical data.
+3. Users can make import and export a document
+4. A user can add a comment to the document
+
+Scale Requirements
+DAU: 1 million.
+Traffic Spike: 5x during peak hours
+Read to write ratio: 10:1
+Average Document Size: 100KB. Assume each user has an average of 10 documents.
+Edit Frequency: 1 edit per second per document during peak hours
+
+we need to store document metadata and document content and comment data
+
+document content can be stored in s3 as an object storage
+
+Google Docs represents the document content as a tree of objects.
+
+The document metadata includes:
+    Document title, author, permissions, creation and last modified timestamps.
+    Access control data (e.g., roles like owner, editor, viewer).
+    Versioning pointers, references to document snapshots, and other attributes.
+
+use RDBMS for above because we need Data Integrity and Transactional Consistency
+
+for comments:  use a NoSQL DB for comment service
+The dataType could be K-V.
+K: document_id, V: Json object relevant to the comment. {line:1, position: 123, comment: “hey”, user_id: 123}
+
+Database Schema for Versioning
+    document_snapshots (stores periodic full snapshots)
+    document_changes (stores deltas between snapshots)
+CREATE TABLE document_snapshots (
+    document_id UUID,
+    version_id UUID PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT NOW(),
+    author_id UUID,
+    content TEXT,  -- Serialized JSON/Protobuf of the document
+    previous_version UUID NULL  -- Previous snapshot
+);
+CREATE TABLE document_changes (
+    document_id UUID,
+    version_id UUID PRIMARY KEY,
+    timestamp TIMESTAMP DEFAULT NOW(),
+    author_id UUID,
+    base_version UUID,  -- Reference to last known version
+    changes JSONB  -- Delta operations (insert, delete, format)
+);
+
+
+Synchronizing Document State
+ use websocket connection with client and docs service
+
+
+The primary goal of Operational Transformation (OT) is to ensure that all users see the same final document state after a series of edits, even if those edits are made out of order.
+
+
+How to implement document version history?
+    Store periodic snapshots (e.g., every 100 changes)
+    Store deltas between snapshots as the changes happening snapshots
+Benefits:
+    Balanced storage vs. retrieval speed
+    Faster version reconstruction
+    Efficient storage
+
+
+How to prevent server overload from frequent edits?
+1. Client-Side Batching
+2. Rate Limiting
+3. Caching
+
+
+1. Where is the Tree-Based Structure Stored?
+The document’s internal tree structure (AST, DOM-like model) is stored in a real-time, low-latency database rather than object storage. Possible storage mechanisms include:
+
+A. In-Memory Databases (for Real-Time Editing)
+Google Docs likely uses Spanner (Google’s globally distributed SQL database) or a similar NoSQL store for real-time document storage.
+
+Data is stored in a structured, hierarchical format that allows efficient updates.
+
+This is necessary because object storage like S3 is too slow for handling frequent edits.
+
+2. When is Object Storage (e.g., S3) Used?
+Even though real-time updates happen in a database, periodic snapshots, exports, and backups are stored in object storage.
+
+A. Periodic Snapshots & Versioning
+Every few minutes, Google Docs may serialize the document tree into a protobuf/JSON format and store it in Google Cloud Storage (similar to S3).
+
+This allows users to recover older versions (Google Docs’ Version History feature).

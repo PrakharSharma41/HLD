@@ -1,0 +1,23 @@
+POST /api/documents
+{
+  "documentId": "doc-123",
+  "title": "My Document"
+}
+
+GET /api/documents/{documentId}
+{
+  "documentId": "doc-123",
+  "title": "My Document",
+  "content": "Document content"
+}
+
+PUT /api/documents/{documentId}
+{
+  "documentId": "doc-123",
+  "title": "Updated Title"
+}
+
+POST /api/documents/{documentId}/operations
+{
+  "status": "success"
+}
