@@ -1,3 +1,23 @@
+# Index  
+
+- [Music Streaming / Consistent Hashing](#music-streaming--consistent-hashing)
+  - [Issues & Solutions](#issues--solutions)
+    - [Uneven Load Distribution](#1-uneven-load-distribution)
+    - [Load on Central Load Balancer](#2-load-on-central-load-balancer)
+    - [Server Failures](#3-server-failures)
+- [Crosswords / Online-Offline App](#crosswords--online-offline-app)
+  - [Access Hints from Server](#access-hints-from-server)
+  - [Preloaded Hints in the App](#preloaded-hints-in-the-app)
+- [XML File Processing](#xml-file-processing)
+  - [Techniques for Handling Large XML Files](#techniques-for-handling-large-xml-files)
+- [Sports App / Budget Planning for 6 Months](#sports-app--budget-planning-for-6-months)
+- [Scaling a Social Network for International Traffic](#scaling-a-social-network-for-international-traffic)
+- [Budget Estimation for System Planning](#budget-estimation-for-system-planning)
+- [Porting Code to Embedded Systems](#porting-code-to-embedded-systems)
+- [System Slowness Troubleshooting](#system-slowness-troubleshooting)
+- [Design: Read-Heavy System](#design-read-heavy-system)
+- [Design: Write-Heavy System](#design-write-heavy-system)
+
 # Music Streaming / Consistent Hashing
 
 ## Issues & Solutions
