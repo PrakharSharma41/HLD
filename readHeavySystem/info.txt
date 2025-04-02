@@ -1,0 +1,12 @@
+
+Design read heavy system:
+1. Read QPS (Queries Per Second)
+2. Consistency vs. Availability Needs
+3. Latency Tolerance
+4. Choose the Right Database: Use read replicas to distribute queries. Indexing and caching are crucial. Best for fast, large-scale reads.
+5. Elasticsearch for full-text search. Cassandra/DynamoDB for distributed, high-speed reads.
+6. Scale Reads with Replication: Leader-Follower(consistency) Multi-Leader Replication(users are distributed geographically) Quorum-Based Reads(Balance between consistency & availability. Like Cassandra)
+7. Use Caching for Low Latency: cdn, application level caching, database query caching
+8. Optimize Indexing: B+ Tree Indexes, Hash Indexes (Used in Redis, DynamoDB), composite index
+9. Load Balancing for Scalability
+10. Monitor & Optimize Performance

@@ -1,0 +1,11 @@
+Design write heavy system:
+1. Write QPS (Queries Per Second)
+2. Consistency vs. Availability Needs
+3. Latency tolerant
+4. Choose the Right Storage Strategy: Used by Cassandra, RocksDB, LevelDB, ScyllaDB, DynamoDB. Writes are batched and stored in memory before flushing to disk, reducing write amplification.
+5. Use Kafka, Apache Pulsar, or Redis Streams as a write buffer.
+6. Scale Horizontally: Use a consistent hashing scheme (e.g., virtual nodes) to distribute writes evenly.
+7. Use a Write-Optimized Caching Layer: Write-back cache: Writes go to cache first and are asynchronously flushed to the DB.
+8. Ensure Durability & Replication
+9. Handle Failures & Retrying:  Circuit Breakers & Backoff: Prevent system overload. Idempotency: Ensure retries don’t result in duplicate writes.
+10. Monitoring & Scaling: Monitor Write Latencies & Backlog Growth in Kafka, Redis, or DB.
