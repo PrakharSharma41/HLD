@@ -171,4 +171,4 @@
    - **Write-back cache** (async flush to DB).
 
 8. **Durability & Replication**:
-   - Ensure **fault**
+   - Ensure **fault tolerance** with proper replication strategies.
