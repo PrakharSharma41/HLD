@@ -1,0 +1,170 @@
+Atlassian karat
+
+
+Music Streaming/consistent hashing :
+1. Uneven load distribution:  Use virtual nodes so that a single physical server is responsible for multiple partitions
+2. Load on central load balancer: distributed load balancing, Use DNS-based Load Balancing to distribute traffic across multiple regional balancers.
+3. server failures: solved by replication
+
+
+Crosswords/ online-offline app:
+Access hints from server:
+pros:
+1. Dynamic
+2. Learn about user based on hints accessed
+3. Less storage
+Cons:
+1. Slow
+2. Internet connectivity required
+3. More cost
+
+Preloaded hints into the app.
+Pros:
+1. Faster
+2. No internet required
+3. Less cost
+Cons:
+1. May not be helpful if user needs more hints
+2. More Storage
+
+
+XML File :
+1. Streaming(keeps a small portion into memory, use sax)(Simple API for XML) Best for: Processing large XML sequentially with minimal memory usage
+2. Split into chunks based on key tags and process parallely
+3. Parse xml in chunks and store in db, better for some aggregate query. Best for: Scenarios where queries/aggregations need to be run later
+4. Use Python’s ElementTree.iterparse() to process XML incrementally.Avoids storing the entire XML tree, freeing up memory after processing each element.
+
+
+Sports Bias/Sports app / design budget for next 6 months:
+1. Number of users
+2. Number of articles
+3. Size of articles
+4. Average server usage per article
+5. Cost per article
+6. Average Processing time for a link
+7. Types of server cpu, gpu etc
+8. Resource usage with scaled traffic
+9. Miscellaneous expense based on some licenses
+
+
+
+Social Network/ scale international traffic :
+1. Deploy backend worldwides/ endpoints corresponding to countries
+2. Geo spatial load balancer
+3. Cdn
+4. Data constriants based on some specific countries
+5. Storage for different languages
+6. Scale to Handle additional traffic
+
+
+
+Budget Estimation for System Planning:
+1. storage costs for next 6 months 
+2. average server costs for next 6 
+3. will we need to handle traffic surge in next 6 months frequently 
+4. hiring a developer cost
+5. Marketing and licensing cost
+
+
+Porting Code to Embedded Systems:
+1. Hardware limitation, raspberry pi may have a limited memory than a full fledged computer
+2. Software compatibility, if current system on Linux and Raspberry Pi with Raspberry Pi OS
+3. If the external system is running high-level languages (e.g., Python, Java), check if they run efficiently on the microcontroller.
+4. Power Supply: Ensure the microcontroller can operate efficiently within the power limits.
+5. If the smart freezer communicates externally (e.g., cloud or another system), ensure the Raspberry Pi can handle the protocols.
+6. How does this impact the cost of system for a user including maintenance cost
+
+
+
+
+System Slowness Troubleshooting:
+1. Use APM tools like New Relic, Datadog, or Prometheus to track API latencies. Identify which API calls are slow.
+2. Check Infrastructure Metrics CPU, Memory, Disk I/O: If CPU/memory usage is high, you may need scaling.
+3. Increase the number of servers
+4. Use consistent hashing to distribute load 
+5. Use geospatial load balancer based on regions
+6. Use cache for api calls 
+7. Use cdn to fetch static things
+8. Use separate read replicas for db related queries
+
+
+
+Scaling a System for Increased Users:
+1. Scale db: Extra/less storage required for more or less users
+2. Scale servers: May need to increase or decrease the number of servers
+3. Load balancing between all servers need to be handled
+4. Need to also look for data compliance if the users are in separate country
+5. Extra cost required with new number of users
+6. Use Prometheus, Grafana, Datadog, or New Relic to monitor latency, errors, and resource usage and do load testing
+
+
+
+password management system:
+1. "No English Words" is Vague & Hard to Enforce Would it check against a dictionary? What about proper nouns or abbreviations?
+2. Minimum Requirements Might Not Be Strong Enough A password like Aaaaaaaa! meets the criteria but is weak.
+3. Length Constraint (8-16 Characters) Could Be Too Short, lesser security 
+4. Doesn't Address Common Attacks: No mention of preventing password reuse.
+5. Maintain a blacklist of weak passwords
+6. Instead of enforcing rules like "must contain one symbol," use a password strength meter to guide users.
+
+
+
+Design write heavy system:
+1. Write QPS (Queries Per Second)
+2. Consistency vs. Availability Needs
+3. Latency tolerant
+4. Choose the Right Storage Strategy: Used by Cassandra, RocksDB, LevelDB, ScyllaDB, DynamoDB. Writes are batched and stored in memory before flushing to disk, reducing write amplification.
+5. Use Kafka, Apache Pulsar, or Redis Streams as a write buffer.
+6. Scale Horizontally: Use a consistent hashing scheme (e.g., virtual nodes) to distribute writes evenly.
+7. Use a Write-Optimized Caching Layer: Write-back cache: Writes go to cache first and are asynchronously flushed to the DB.
+8. Ensure Durability & Replication
+9. Handle Failures & Retrying:  Circuit Breakers & Backoff: Prevent system overload. Idempotency: Ensure retries don’t result in duplicate writes.
+10. Monitoring & Scaling: Monitor Write Latencies & Backlog Growth in Kafka, Redis, or DB.
+
+
+Design read heavy system:
+1. Read QPS (Queries Per Second)
+2. Consistency vs. Availability Needs
+3. Latency Tolerance
+4. Choose the Right Database: Use read replicas to distribute queries. Indexing and caching are crucial. Best for fast, large-scale reads.
+5. Elasticsearch for full-text search. Cassandra/DynamoDB for distributed, high-speed reads.
+6. Scale Reads with Replication: Leader-Follower(consistency) Multi-Leader Replication(users are distributed geographically) Quorum-Based Reads(Balance between consistency & availability. Like Cassandra)
+7. Use Caching for Low Latency: cdn, application level caching, database query caching
+8. Optimize Indexing: B+ Tree Indexes, Hash Indexes (Used in Redis, DynamoDB), composite index
+9. Load Balancing for Scalability
+10. Monitor & Optimize Performance
+
+
+A mobile application for playing puzzles has some media content with it - audio, video and images. What are the trade-offs for fetching these media online or storing them offline in the app?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
