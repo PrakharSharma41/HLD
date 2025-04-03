@@ -18,8 +18,8 @@
 - [Design: Read-Heavy System](#design-read-heavy-system)
 - [Design: Write-Heavy System](#design-write-heavy-system)
 - [Design: idempotent apis](#Design-idempotent-apis)
-- [Round robin approach in google docs](#Round-robin-google-docs)
-- [why strong consistency for banking applications](#strong-consistency-banking)
+- [Round robin approach in google docs](#Round-robin-approach-in-google-docs)
+- [strong consistency for banking applications](#strong-consistency-for-banking-applications)
 # Music Streaming / Consistent Hashing
 
 ## Issues & Solutions
