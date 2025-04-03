@@ -18,7 +18,8 @@
 - [Design: Read-Heavy System](#design-read-heavy-system)
 - [Design: Write-Heavy System](#design-write-heavy-system)
 - [Design: idempotent apis](#Design-idempotent-apis)
-
+- [Round robin approach in google docs](#Round-robin-google-docs)
+- [why strong consistency for banking applications](#strong-consistency-banking)
 # Music Streaming / Consistent Hashing
 
 ## Issues & Solutions
@@ -202,3 +203,20 @@
 3. Handle Retries Gracefully: If a request is processed once, return the same result on retries.
 4. Use a Strong Database Consistency Model: Use unique constraints
 5. Implement Distributed Locks: Prevent race conditions when multiple requests update the same resource
+
+
+---
+# Round robin approach in google docs
+1. Real-Time Collaboration Latency: Round Robin assigns user requests to different servers without considering ongoing  editing sessions.
+    If two users editing the same document are assigned to different backend instances, their edits must sync frequently across servers, increasing latency and conflicts.
+2. If different users editing the same document are handled by different backend instances, synchronizing changes across servers becomes complex and costly.
+3. Load Imbalance for Active Documents: Some documents are edited by hundreds or thousands of users simultaneously, while others have just one or two.
+4. Inefficient Resource Utilization: Round Robin might route a lightweight read request and a heavy collaborative edit session to different instances indiscriminately.
+5. With Round Robin, subsequent requests from the same user (or document) may go to different servers leading to inconsistencies in their editing experience.
+
+---
+# why strong consistency for banking applications
+1. Prevents Double Spending
+2. Ensures Accurate Balances
+3. Compliance & Regulatory Requirements: These regulations require accurate record-keeping, transaction integrity, and auditable histories.
+4. Avoids Race Conditions in Multi-Node Environments: Strong consistency ensures all nodes see the latest transaction history, eliminating race conditions.
