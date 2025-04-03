@@ -215,7 +215,7 @@
 5. With Round Robin, subsequent requests from the same user (or document) may go to different servers leading to inconsistencies in their editing experience.
 
 ---
-# why strong consistency for banking applications
+# strong consistency for banking applications
 1. Prevents Double Spending
 2. Ensures Accurate Balances
 3. Compliance & Regulatory Requirements: These regulations require accurate record-keeping, transaction integrity, and auditable histories.
