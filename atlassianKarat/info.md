@@ -17,6 +17,7 @@
 - [System Slowness Troubleshooting](#system-slowness-troubleshooting)
 - [Design: Read-Heavy System](#design-read-heavy-system)
 - [Design: Write-Heavy System](#design-write-heavy-system)
+- [Design: idempotent apis](#Design-idempotent-apis)
 
 # Music Streaming / Consistent Hashing
 
@@ -192,3 +193,11 @@
 
 8. **Durability & Replication**:
    - Ensure **fault tolerance** with proper replication strategies.
+
+
+9. **Design: idempotent apis**:
+   - Assign a Unique Idempotency Key
+   - Use Safe HTTP Methods: GET, HEAD, OPTIONS, DELETE are naturally idempotent
+   - Handle Retries Gracefully: If a request is processed once, return the same result on retries.
+   - Use a Strong Database Consistency Model: Use unique constraints
+   - Implement Distributed Locks: Prevent race conditions when multiple requests update the same resource
