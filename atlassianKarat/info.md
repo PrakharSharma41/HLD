@@ -20,17 +20,20 @@
 - [Design: idempotent apis](#Design-idempotent-apis)
 - [Round robin approach in google docs](#Round-robin-approach-in-google-docs)
 - [strong consistency for banking applications](#strong-consistency-for-banking-applications)
+- [Budgeting for a smart engine service](#Budgeting-for-a-smart-engine-service)
 # Music Streaming / Consistent Hashing
 
 ## Issues & Solutions
-### 1. Uneven Load Distribution  
+### 1. Uneven Load Distribution / Data Skew & Hot Keys 
 - **Solution**: Use **virtual nodes** so that a single physical server is responsible for multiple partitions.
 
-### 2. Load on Central Load Balancer  
+### 2. Load on Central Load Balancer / Latency and Proximity Issues  
 - **Solution**: Use **distributed load balancing**, such as **DNS-based Load Balancing** to distribute traffic across multiple regional balancers.
 
 ### 3. Server Failures  
 - **Solution**: Use **replication** to ensure fault tolerance.
+### 4. Cache Invalidation During Rebalancing
+- **Solution**: When nodes are added or removed from the cluster, consistent hashing minimizes rebalancing, but a small percentage of keys must still be reassigned. , use virtual nodes
 
 ---
 
@@ -40,8 +43,9 @@
 
 ### **Pros**:
 1. Dynamic
-2. Learn about user behavior based on accessed hints
+2. Better security and control over hints. Premium hints stay on the server reducing the risk of reverse engineering
 3. Requires less storage on the client side
+4. Lower initial app load time
 
 ### **Cons**:
 1. Slower due to network latency
@@ -75,7 +79,7 @@
    - Parse XML in chunks and store in a database.
    - Suitable for scenarios requiring later aggregations.
 
-4. **Using `ElementTree.iterparse()`**:  
+4. **Using python `ElementTree.iterparse()`**:  
    - Processes XML incrementally and frees up memory after each element.
 
 ---
@@ -103,7 +107,7 @@
 3. Implement **CDN** for static content.
 4. Manage **data compliance for different countries**.
 5. Support **multi-language content storage**.
-6. Plan for **traffic surges and scalability**.
+6. Plan for **traffic surges and scalability**. Prepare for spikes in user activity across time zones with cloud auto-scaling and regionally deployed servers.
 
 ---
 
@@ -220,3 +224,14 @@
 2. Ensures Accurate Balances
 3. Compliance & Regulatory Requirements: These regulations require accurate record-keeping, transaction integrity, and auditable histories.
 4. Avoids Race Conditions in Multi-Node Environments: Strong consistency ensures all nodes see the latest transaction history, eliminating race conditions.
+
+
+---
+# Budgeting for a smart engine service
+1. Data Requirements & Format — What type of data needs extraction
+2. how many urls will we get
+3. types of servers we may need to process
+4. storage for the data 
+5. average cost per url
+6. resource scaling
+7. Security & Compliance — Is encryption required? 
