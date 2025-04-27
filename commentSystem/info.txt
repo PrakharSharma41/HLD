@@ -1,0 +1,118 @@
+How Does the Live Comment Work?
+
+At a high level, the Live Comment service performs the following operations:
+
+    1. gateway server fans out live comments to the clients through server-sent events (SSE)
+    2. the client subscribes to a live video on the gateway server over Hypertext Transfer Protocol (HTTP)
+    3. in-memory subscription store on the gateway server keeps the viewership associativity
+    4. gateway server subscribes to a live video on the endpoint store
+    5. endpoint store keeps the set of gateway servers subscribed to a particular live video
+    6. heartbeat signal or time to live (TTL) on keys on the subscription store can be used to drain the inactive SSE connections
+    7. ending of a live video can trigger an update on the endpoint store
+    8. dispatcher broadcasts the live comments to the dispatcher in peer data centers
+
+
+Functional Requirements
+1. viewers can post comments
+2. viewers can see all comments posted in near realtime
+3. viewers can see all comments posted before they joined
+4. viewers can reply to comments
+5. viewers can react to comments
+
+
+Non-Functional Requirements
+1. Highly availability
+2. Fault-tolerant
+3. Low latency approx 200ms
+4. Scalability, millions of videos with thousands of comments
+5. Eventual consistency
+
+
+ESTIMATION:
+amount of Daily Active Users (DAU)?: 100M
+system’s total number of daily live videos?: 200M daily videos
+average amount of live comments on a live video?: 10
+anticipated read: write ratio of live comments?: 100:1
+peak amount of concurrent users watching the same live video?: 80M
+
+Core Entities:
+1. Comments
+2. Live video
+3. Users
+
+API:
+
+// viewers to post comment:
+POST /comments/:liveVideoId -> 200
+{
+    comment
+}
+
+// viewers can see comments posted
+GET /comments/:liveVideoId?cursor={last_comment_id}&direction={after/before}&pageSize=50
+
+
+when user is trying to scroll up, we can use cache to improve latency
+we can create key as userId:liveVideoID:comments[]
+we can cache last 1000 comments maybe with TTL and serve from cache
+
+
+we can use websockets and sse here
+
+websocket:
+1. bidirectional
+2. its own protocol(not http)
+3. all infra needs to support upgrading from http to websocket(services, api gateway)
+4. load balancers, procies, firewalls, all need to negotiate this upgrade
+5. here we dont need bidirectional because most of the users are not commenting
+
+
+SSE:
+1. unidirectional
+2. over http
+3. built in browser support for reconnection
+4. just looks like a long running http request
+5. http headers to indicate we will be sending chunks
+
+
+Database:
+comment: commentId, videoId, authorId,content,created_at
+
+lot of writes here:
+high write Throughput
+
+postgres with sharding can also be used here.
+we have no complex relations between data, user and liveVideoId, we can use cassandra here and
+easily shard based on videdoId
+
+comment service has in memory mapping to fanout the comment that is created by a user
+it will map video id to a list of connections
+but this has a problem with scaling, when we horizontally scale, then it is
+possible that the instance that receives the comment from a user is different than
+the instance that have connections mapping
+
+we will create a separate realtime comment service that will be responsible
+to fanout the comment, it is created separately so that we can scale it independently 
+based on the number of sse, while comment service will only be responsible for
+posting the comment
+
+we have 2 ways of maintaing these realtime comment service:
+
+1. zookeeper:
+when new client connect using sse, zookeeper knows which live video they want
+to connect to, so it connects them to that particular real time comment service
+
+when new comment comes in, it asks zookeeper what live video that comment is for 
+and zookeeper tells which realtime comment server will push the message to
+comment service can also cache the zookeeper response
+
+problem is the network hop here when we want to connect to zookeeper 
+zookeeper needs to maintain realtime comment service using heartbeat which can create consistency issue
+
+
+2. broadcast:
+use pub sub where comment service will put(broadcast) new comment in pub sub,
+all of the realtime comment service subscribes to the queue and only those who actually needs that 
+comment based on live video, they will broadcast msg to users using sse
+we can even partition pub/sub based on hash(videoId)%n so that real time comment service are not 
+subscribing to all topics but only a limited set of topics
