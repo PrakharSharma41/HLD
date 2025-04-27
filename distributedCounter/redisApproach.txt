@@ -1,0 +1,20 @@
+
+in redis approach, we can use INCR command for atomic operation but this operation is not idempotent
+we will not be able to know if it was successful or not maybe due to network error etc.
+
+we can reduce read latency by using gossip protocol between redis followers, they can lazy sync using gossip and have 
+a partial or complete view of the total counter.
+So when you read from just one shard, it can answer approximately or exactly without querying others immediately.
+
+The drawback of using native data types in Redis is that the count update operations are not idempotent and
+it is also non-trivial to check whether a command execution on Redis was successful during a network failure, 
+which might result in an inaccurate counter. 
+
+As a workaround to network failures, 
+the Lua script can be executed on the Redis server to store the user IDs or keep the user IDs in a Redis set data type.
+In conclusion, do not use native data types in Redis to create the distributed counter.
+
+problem with INCR:
+1. non idempotent
+2. Redis uses eventual consistency in a distributed setup, meaning counters might not be fully synchronized across all replicas immediately.
+3. INCR supports adding 1 or incrementing by some number, but it does not allow complex operation like setting it back to 0.

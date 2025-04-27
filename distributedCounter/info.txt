@@ -1,0 +1,75 @@
+https://systemdesign.one/distributed-counter-system-design
+Functional Requirements:
+
+The total count of users currently viewing the website or a particular web page should be shown by the distributed counter in real-time
+The value of the distributed must decrement when a user exits the website
+The user receives the count of unread notifications when the subscribed web pages are modified
+
+Non-Functional Requirements
+    Highly Available
+    Eventually Consistent
+    Accurate
+    Reliable
+    Scalable
+    Low Latency
+
+
+Estimation:
+average amount of concurrent online users: 100M
+expected peak traffic: 300M concurrent peak users
+anticipated read to write ratio of the distributed counter: 10:1
+
+the distributed counter can be eventually consistent as it does not affect the user experience
+
+Design Options:
+
+1. Eventual Consistency (High Throughput Counter)
+    Every node maintains a local counter.
+
+    Periodically, nodes gossip/sync with each other.
+
+    Global count = Sum of all node counters.
+
+    Use Conflict-free Replicated Data Types (CRDTs) — specifically G-Counter or PN-Counter.
+
+    🧠 Suitable when some temporary inaccuracy is acceptable (e.g., likes count on a post).
+
+2. Strong Consistency (Accurate Counter)
+    Use a leader-based system (like Raft/Paxos).
+
+    All increments/decrements must go through the leader.
+
+    Leader applies changes, replicates to followers, and acknowledges.
+
+    Global count is always correct.
+
+API:
+
+/:webpage-id/counter
+method: GET
+response: {
+  count: 715,
+  updated_at: "2030-10-10T12:11:42Z"
+}
+
+/:webpage-id/counter
+method: PUT
+response: {
+  count: 812,
+  updated_at: "2030-10-10T12:11:42Z"
+}
+
+
+a basic approach:
+request comes → consistent hash to a node → node updates counter → replicate to replicas 
+→ sum values on read if sharded → sync replicas in background.
+
+to split one counter id into multiple shards:
+    Instead of treating counter as one row,
+    we create N virtual shards for that counter.
+    Each shard is just the counter ID + a shard number.
+
+    When a request comes to increment likes_counter, we:
+    Randomly (or based on some rule) pick one of the 10 shards.
+    Example: pick shard 7.
+    Increment likes_counter_7 by +1.

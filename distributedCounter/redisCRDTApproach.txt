@@ -1,0 +1,13 @@
+refer redisCRDTApproach.png
+we are using crdt which is conflict free replicated data types
+we are using pn crdt in which each shard will hold positive and negative increments and decrements separately
+
+example:
+counter:123:P → { nodeA: 50,nodeB: 20 }
+counter:123:N → { nodeA: 5, nodeB: 10 }
+
+we have a lua script that runs and take max of p among its replicas and max of n among its replicas
+than it sums those P and N and subtract N from P: P-N
+
+we can have a websocket connection with users, so that whenever lua script runs to get total count, it can fanout
+the result to all users

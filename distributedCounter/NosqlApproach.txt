@@ -1,0 +1,24 @@
+we can use apache cassandra here.
+
+The nodes in Cassandra communicate with each other using the gossip protocol. 
+Apache Cassandra supports automatic partitioning of the database using consistent hashing. 
+
+Frequent disk access can become a potential performance bottleneck for reads of the distributed counter using Cassandra. 
+An additional cache layer using Redis can be provisioned with the cache-aside pattern to improve the reads. 
+
+The downside of this approach is that the data consistency of the distributed counter cannot be guaranteed.
+
+The problems with the Cassandra counter are the following:
+
+the counter column can only exist in a separate table with entirely counter columns
+the counter table with at least one counter column can never be deleted
+the counter update operations are not idempotent
+
+
+in cassaandra we could  have used COUNTER, which is  internally implemented as to increase the value and replicate it 
+efficiently but it has some problems:
+1. No mixed data types	If a table has a counter, all non-PK columns must be counters
+2. No deletes of individual rows	Due to internal increment history tracking
+3. Not idempotent	Retrying the same increment may double-count!
+
+It is also not preferred approach for this system.

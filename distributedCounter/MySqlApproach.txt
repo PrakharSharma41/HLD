@@ -1,0 +1,48 @@
+in mysqlSchema.png we have counter table that stores the count updated at that timestamp
+
+relational db is not preferred for this system, see last point
+
+approach1:
+
+we can use relational db with reader writer lock to improve performance of read 
+but it degrades writes performance
+
+approach2:
+The local cache (memory) of the server can aggregate the count update events. 
+The server can perform a batch update to the database server at periodic intervals. 
+The concurrency and idempotence of data queries can be handled through optimistic locks. 
+This approach reduces the latency and storage costs.
+
+approach3:
+The server can persist the count update events on distinct records of the database. 
+This approach supports extremely high concurrent writes because there is no need for locks.
+The tradeoff of this approach is slower read queries due to a full table scan and also increased storage costs
+The database should be partitioned (sharded) to scale the distributed counter.
+
+The consistent hashing algorithm can be used to partition the database. 
+The partitioning of the database only reduces the load on a database instance. 
+In addition, the database instances must be replicated for high availability.
+
+approach4:
+The load on the database can be further evenly distributed among replicas through the segregation of database reads
+The writes are routed to the leader instance while the reads are redirected to the follower instances.
+The counter should be partitioned across multiple nodes for scalability.
+The distributed counter is also known as a sharded counter. 
+The probability of lock conflicts is reduced through partitioning. 
+
+The high-level workflow of a sharded counter is the following:
+    multiple counters are initialized in parallel
+    updates to the counter are applied on a random shard using the round-robin algorithm
+    the counter is fetched by summing up the count on every shard through parallel queries
+
+the reads slow down due to the need for querying every shard.
+The writes require disk access and are expensive due to data serialization for storage
+
+
+
+Do not use the relational database to build a scalable distributed counter:
+
+The leader-follower replication topology of the relational database will result in write congestion and poor latency.
+The leader-leader replication topology needs an additional service for conflict resolution. 
+On top of that, transaction support is unnecessary for the distributed counter because high availability should be favored against strong consistency
+
