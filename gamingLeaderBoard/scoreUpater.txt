@@ -1,0 +1,10 @@
+in approach2-ScoreUpdater.png:
+we have flow for updating the score 
+
+1. The client creates a WebSocket connection to the load balancer for real-time communication
+2. The load balancer delegates the client’s request to the closest data center
+3. The server updates the score on the sorted set data type in Redis
+4. The serverless function updates the records on the relational database using the write-behind cache pattern
+
+
+The serverless functions can be used to trigger the score update on the cache server and CDN through an event-driven architecture13.

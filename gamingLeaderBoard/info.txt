@@ -1,0 +1,72 @@
+How does the Leaderboard work?
+The Redis sorted set is the data type for the use cases and access patterns in the leaderboard requirements. 
+The sorted set is an in-memory data type that makes it trivial to generate the leaderboard in real-time for millions of players.
+
+Functional Requirements
+    The client (player) can view the top 10 players on the leaderboard in real-time (absolute leaderboard)
+    The client can view a specific player’s rank and score
+    The client can view the surrounding ranked players to a particular player (relative leaderboard)
+    The client can receive score updates through push notifications
+    The leaderboard can be configured for global, regional, and friend circles
+    The client can view the historical game scores and historical leaderboards
+    The leaderboards can rank players based on gameplay on a daily, weekly, or monthly basis
+    The clients can update the leaderboard in a fully distributed manner across the globe
+    The leaderboard should support thousands of concurrent players
+
+
+Estimation:
+
+50 million DAU
+5:1 read to write ratio
+QPS(write): 600
+read:write 5:1
+QPS(read): 3000
+peak qps(read): 3600
+
+total player count: 70M
+single record of player  32 bytes
+storage for a dady 50Mplayers/day * 32 bytes/player 1600MB
+storage for 5 years: 1600MB * 5 * 365 approx 3 TB
+
+in redis we have leaderboards data which is a sorted set based on score and hash data which is players data
+
+SQL query to calculate the rank of a specific player:
+ 
+SELECT COUNT(*)
+FROM leaderboards AS l2
+WHERE l2.score >= (
+  SELECT score
+  FROM leaderboards AS l1
+  WHERE l1.player_id = '42'
+);
+
+why relational db is not optimal:
+1. computing the rank of a player requires the recomputation of the ranking of every player through a full table scan
+2. caching the read queries on the relational database for performance might result in stale leaderboard data
+3. query time can be slow when the count of players is in millions
+4. join operations can be problematic
+
+As long as the number of concurrent players in the game remains low to moderate (below 100 thousand), the relational database can provide sufficient leaderboard functionality.
+
+
+use redis sorted sets:
+
+1. The player ID is available in the sorted sets and the metadata of the player can be fetched from the relational database.
+2. The hash data type in Redis can cache the metadata of players for quick access to the metadata.
+
+
+in approach1.png we put data in hash server(redis) with low ttl so that user does not get stale data
+
+to prevent thundering herd problem we can create database trigger that will by default push changes to cache
+
+to send notifications to a player we can use database trigger which will invoke serverless functions on ranking changes
+serverless functions can write the ranking changes data on message queue for processing, then send notification to players
+
+
+scaling redis server:
+
+we will shard the leaderboard cache server based on score in consistent hashing
+when we want to update score of a player, we will update the shard for that player since score has changed and shard may change
+
+when we want to see top k players, we find top players for each shard and the combine them to find top k players , this will increase 
+read latency

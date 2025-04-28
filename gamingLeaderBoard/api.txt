@@ -1,0 +1,51 @@
+API:
+
+POST /players/:player-id/scores
+content-encoding: gzip
+{
+    player_id: <int>,
+    score: <int>,
+    location: Geohash
+}
+
+GET /players/:player-id
+{
+    player_id: "45231",
+    player_name: "Rick",
+    score: 1562,
+    rank: 1,
+    updated_at: "2030-10-10T12:11:42Z"
+}
+
+GET /leaderboard/top/:count
+{
+  total: 10, (count)
+  updated_at: "2030-10-10T12:11:42Z",
+  data: [
+    {
+      player_id: "45231",
+      player_name: "Rick",
+      score: 1562,
+      rank: 1,
+    },
+    {...}
+  ]
+}
+
+
+surroundign ranked players:
+/leaderboard/:player-id/:count
+{
+  total: 6, (count)
+  updated_at: "2030-10-10T12:11:42Z",
+  data: [
+    {
+      player_id: "45231",
+      player_name: "Morty",
+      score: 1562,
+      rank: 2,
+    },
+    {...}
+  ]
+}
+

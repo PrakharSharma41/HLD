@@ -1,0 +1,10 @@
+The completed games can switch to REST instead of WebSocket streaming 20. The historical leaderboard can leverage a long TTL cache for scalability10.
+
+Flow:
+1. The client queries the DNS for identifying the closest data center
+2. The extremely popular leaderboards can be queried from the CDN cache
+3. The load balancer delegates the client’s request to a web server using the weighted-round robin algorithm
+4. The web server invokes the serverless function to fetch the historical leaderboard
+5. The serverless function queries the dedicated cache
+6. The serverless function queries the read replica of the relational database on a cache miss
+7. The profile image of the players can be fetched from the object storage
