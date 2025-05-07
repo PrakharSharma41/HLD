@@ -21,6 +21,10 @@
 - [Round robin approach in google docs](#Round-robin-approach-in-google-docs)
 - [strong consistency for banking applications](#strong-consistency-for-banking-applications)
 - [Budgeting for a smart engine service](#Budgeting-for-a-smart-engine-service)
+- [Find missing notifications list](#Find-missing-notifications-list)
+- [Throughput question](#Throughput-question)
+- [use strong consistency or eventual consistency](#use-strong-consistency-or-eventual-consistency)
+- [post with friends counter, define schema](#post-with-friends-counter,-define-schema)
 # Music Streaming / Consistent Hashing
 
 ## Issues & Solutions
@@ -235,3 +239,55 @@
 5. average cost per url
 6. resource scaling
 7. Security & Compliance — Is encryption required? 
+
+---
+# Find missing notifications list
+you have successful notifications stored 
+We have two pieces of information:
+1. A database that tracks fully signed documents.
+2. Flat-file logs from 500 production servers. The logs track the document IDs for successfully sent notifications, but failed attempts are missing.
+
+Solution:
+
+1. Extract Document IDs from Database: Get all document IDs that are fully signed.
+
+2. Parse Logs in Parallel: From the 500 servers, extract document IDs with successful notifications using a distributed processing system (e.g., Hadoop, Spark, or a cloud-native map-reduce framework).
+
+3. Compute Set Difference:
+3.1. Let A be the set of fully signed document IDs.
+3.2. Let B be the set of document IDs with successful notifications from logs.
+3.3. Missed = A - B (documents that never triggered notifications).
+
+4. Store and Act:
+4.1. Store Missed in a scalable key-value store or message queue.
+4.2. Re-trigger notifications for each missed document ID.
+
+
+---
+# Throughput question
+   A(50)      
+      |         
+     B(30)     
+      |         
+     C(30)     
+     /   \     
+  D(90)  E(10)  
+          |    
+         F(20) 
+          |    
+         G(25) 
+find maximum throughput
+how will you improve throughput if you are given information about each stage
+
+---
+
+# use strong consistency or eventual consistency
+1. banking application SC
+2. page click counter EC
+3. api that need to return in 20ms EC
+
+# post with friends counter, define schema
+given users table and friends table
+how will you find friends counter:
+1. use separate friends counter table
+2. do join between user and friend counter table
