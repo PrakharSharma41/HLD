@@ -291,3 +291,65 @@ given users table and friends table
 how will you find friends counter:
 1. use separate friends counter table
 2. do join between user and friend counter table
+
+
+# We are working on a service that generates subtitles for users' videos. This process starts a new thread per video and is processor-intensive. Currently, this service runs as a single process on a machine.
+
+We've run into a bug where if the service is processing more than 10 videos at the same time, the server crashes, losing all requests currently being processed and affecting other processes on the machine.
+
+It may take a long time to find and fix this bug. What workarounds could we implement to continue running while we do so?
+1. Introduce a Queue/Job Dispatcher
+2. Rate Limiting and Backpressure
+3. Horizontal Scaling with Load Balancer
+4. Circuit Breaker Pattern
+5. Persist Requests for Retry
+
+---
+
+# You're working on infrastructure for internet-connected vending machines. The plan is to install around 100,000 of these vending machines in the coming year, in major cities around the world. These machines will connect to the internet through cellular devices.
+
+Each machine will connect to a central server at midnight to report remaining stock and any maintenance issues like jams or stuck items. These machine status updates will be stored in a database, and a batch job will run at 3am to schedule the restocking and maintenance of machines.
+
+Are there any problems with the above design?
+1. Thundering Herd Problem (Midnight Spike)
+2. Global Time Zone Handling
+3. Cellular Connectivity Failures
+4. Batch Job as Single Point of Failure
+5. Scalability of the Central Server & Database
+
+
+---
+
+# We are running a simple photo storage and sharing service. People upload their photos to our service and then optionally send links to other users who can then view them.
+
+Instead of using a cloud service, we have our own datacenters. You've been tasked with creating an estimate of the storage required over the coming year and the cost of that storage. What information would you need and what factors would you consider as you generate this estimate?
+
+1. User Growth Estimates
+2. Upload Patterns, average photo per user per duration of time
+3. Retention Policy: Are photos stored indefinitely?
+4. Sharing Behavior
+5. Redundancy/Replication
+6. Storage Architecture: filesystem, object storage etc
+7. Hardware Details: Cost per TB of storage
+
+
+---
+
+# We are running a simple photo storage and sharing service. People upload their photos to our servers and then give links to other users who can then view them.
+
+I’m trying to figure out how to split the photos and associated data evenly onto multiple machines, especially as the number of users rises. I’ve decided to shard the photos evenly alphabetically by username. For example, if we had 26 users:
+
+A–I usernames storing with 1,
+J–R with server 2,
+S–Z with server 3, etc.
+I have created a scheme like this that will work for any number of servers.
+Are there any problems with this design?
+
+1. Uneven Load Distribution (Skew)
+2. Lack of Scalability
+3. Hotspots
+4. No Fault Tolerance Mentioned
+5. Poor Flexibility for Horizontal Scaling
+
+
+---
