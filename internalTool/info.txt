@@ -1,6 +1,11 @@
 it is an observability tool that helps us in identifying system related issues, perform rca,
 triage complex issue and finding out rca
 
+The system processes ingested log bundles associated with specific Jira tickets, identifies anomalies in
+system metrics and log entries within defined timeframes, and leverages SupportGPT to generate contextual summaries, potential Root Cause
+Analysis (RCA), and retrieve relevant historical issues. The primary objective is to significantly reduce
+troubleshooting time for support engineers by providing Al-driven insights derived from extensive log and metric data.
+
 FUNCTIONALITIES:
 
 1 Log ingestion:
