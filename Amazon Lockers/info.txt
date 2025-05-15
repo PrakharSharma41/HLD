@@ -1,0 +1,52 @@
+https://medium.com/@brahada29/amazon-lockers-high-level-system-design-fafe8c7d7157
+https://chatgpt.com/share/68263fc6-5748-8005-b2bb-9f4993898216
+
+
+Functional Requirements:
+1. Customer Interaction: Customers should be able to search for and choose a nearby locker for package delivery.
+2. Delivery Process: Delivery personnel should be able to securely place packages into designated lockers.
+3. Customer Access: Customers should have the ability to unlock the locker to retrieve their packages.
+4. Real-time Updates: The system should provide timely updates to customers regarding the status of their locker and package.
+
+Non-Functional Requirements
+1. Scalable: Capable of handling an increasing number of lockers and users, especially during peak times like the holiday season.
+2. Consistent: Ensuring data integrity and a uniform user experience across all lockers and locations.
+3. Reliable: High uptime and fault tolerance to maintain service availability.
+4. Secure: Protection against unauthorized access and data breaches.
+
+Each locker unit features an Internal Database (DB) that operates independently,
+ensuring functionality even during internet outages. The DB stores access codes, locker statuses, and transaction logs.
+
+Locker Service:
+The core of the system is the Locker Service, which includes:
+
+Locker Search: A module that helps customers locate the nearest available locker based on their location.
+Locker Availability: A service that manages real-time information on the availability of lockers.
+Locker Booking: This component handles the reservation of lockers once a customer chooses one.
+
+
+Locker Event Processor maintains websocket connection to physical locker system
+
+Locker Search → Uses locker + location tables
+Locker Booking → Adds entries to booking, package
+Locker Event Processor → Updates locker, locker_slot, inserts into locker_event_log, triggers notification_event
+Notification Service → Polls or listens for notification_event entries to push to user
+
+
+Data Storage
+A Relational Database Management System (RDBMS) is utilized for data storage, 
+applying sharding techniques based on country or date range to efficiently manage and scale the data.
+
+Schema:
+
+Locker table:
+locker_id,location_id, status, num_slots, free_slots, last_synced_at
+
+Location table:
+location_id, lat,long, pincode
+
+Locker_slot table:
+slot_id, slot_number, location_id,status
+
+Package table:
+package_id, user_id, slot_id,locker_id,tracking_id,status=WAITING/ DELIVERED/ PICKED_UP,delivered_at

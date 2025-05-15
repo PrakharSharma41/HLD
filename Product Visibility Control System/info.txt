@@ -1,0 +1,38 @@
+Functional Requirements:
+1. Admin can define visibility rules based on product or transaction attributes (e.g., price > 1000, category = "Luxury").
+2. Products can be enabled or disabled based on these rules.
+3. The rules should be dynamic – admins can add/update/delete rules.
+4. Visibility should be evaluated in real-time or at defined checkpoints (e.g., nightly job or per product view).
+5. A product should be visible only if all applicable rules are satisfied.
+6. Rules may apply to:
+6.1.1 Product Attributes (price, category, brand, inventory)
+6.1.2 Transaction Attributes (buyer location, time, purchase history)
+
+
+Entities:
+
+Product:
+product_id (PK),name,price,category,brand,stock_quantity,visible (bool) — Controlled by the rules
+
+Transaction Context (optional if real-time evaluation includes user context):
+user_id,,location,device,purchase_history (if used in rules)
+
+Rule
+rule_id (PK),name,description,enabled (bool),expression — A condition string (e.g., price > 500 && category == 'Luxury'),applies_to — Target: Product / Transaction / Both
+
+Rule Engine
+A component that evaluates product visibility based on rule expressions.
+
+SQL is Preferred (Recommended in most cases):
+1. Structured, relational data: Rules typically have a well-defined schema (rule name, condition, status, version, timestamps).
+2. Strong consistency is important: You want accurate and predictable application of rules.
+3. Easy audit logging: With created_at, updated_at, created_by, etc.
+4. Filtering/sorting rules: By status, target product category, user type, etc.
+
+setup CDC between visibility engine and rule store db, so that visibility engine will know when to use rules 
+
+How it works:
+1. The Rule Store (e.g., PostgreSQL) emits change events (INSERT/UPDATE/DELETE).
+2. These events are captured by a CDC tool (like Debezium or AWS DMS) and pushed to a message broker (Kafka, Kinesis, etc.).
+3. The Visibility Engine subscribes to this stream and keeps its in-memory rule cache updated.
+
