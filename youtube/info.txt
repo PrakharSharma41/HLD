@@ -6,6 +6,7 @@ Viewers' Requirements:
 1. Immediate video playback upon request
 2. Consistent viewing experience regardless of traffic spikes
 3. Compatibility across different devices and network speeds
+4. automatic playback
 
 Creators' Requirements:
 1. Straightforward video upload URL procurement
