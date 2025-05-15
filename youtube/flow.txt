@@ -37,7 +37,7 @@ The video player selects the best quality (720p.m3u8) based on network condition
 
 4️⃣ Frontend Fetches the Chunk Playlist (720p.m3u8)
 📌 720p Playlist (720p.m3u8)
-
+Each quality-specific playlist (e.g., 720p.m3u8) contains lines like:
 #EXTM3U
 #EXT-X-TARGETDURATION:10
 #EXTINF:10.0,
@@ -54,7 +54,7 @@ The browser fetches and plays chunks:
 https://cdn.example.com/videos/101/720p/chunk1.ts
 https://cdn.example.com/videos/101/720p/chunk2.ts
 Since CDNs cache video files, users get fast and low-latency playback.
-
+So the actual chunks are stored at s3 and cached at these URLs (via the CDN)
 
 Master Playlist URL Terminology
 The Master Playlist URL is a manifest file (typically with a .m3u8 extension for HLS or .mpd for DASH) that contains references to multiple video renditions (qualities).

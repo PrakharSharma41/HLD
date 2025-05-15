@@ -24,6 +24,9 @@ Video transcoding is also called video encoding.
 It is the process of converting a video format to other formats (MPEG, HLS, etc)  to ensure compatibility across a wide range of devices and internet connection speeds.
 which provide the best video streams possible for different devices and bandwidth capabilities.
 
+MPEG = a family of formats for compressing and storing video.
+
+HLS = a protocol for streaming video over the internet in real time.
 
 Metadata contains information about video URL, size, resolution, format, user info, etc.
 
@@ -60,3 +63,11 @@ The video player fetches this master playlist and selects the best resolution dy
 
 alternate design could be separate entries for each video quality
 
+Automatic playback:
+
+store last watched time for a user, when user resumes with that last watched time:
+1. Frontend Seeks to the Correct Chunk
+2. The video player loads the master playlist.
+3. Chooses the best resolution based on bandwidth.
+4. Loads the .m3u8 for that resolution.
+5. Seeks to 142.5s, and the player starts downloading from the corresponding chunk.
