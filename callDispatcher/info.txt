@@ -1,0 +1,53 @@
+Functional Requirements:
+1. call center can accept request
+2. assign a call to the handler
+3. increase the priority of call in case no one answered i.e call escalation
+4. concurrency call handling
+5. call queuing in case there is huge inflow
+
+Non Functional Requirements:
+1. available
+2. fault tolerant
+3. resilient
+4. concurrent request handling
+
+API design
+
+POST /v1/call?callId=123
+Response: 202 
+
+How to handle concurrency? assign only one employee to only one call
+use redis lock functionality, similar to optimistic locking
+
+we will have multiple instances of call dispatcher and if employee gets free, multiple instances may see that
+and try to assign same employee to multiple calls, to handle this use optimistic lock kind of functionality where 
+we put a lock kind of functionality for each employee in redis above employee db and any instance that can create
+key value for that employee in redis can use that employee, rest can not
+
+
+KEY: employee:<id>:status → free / busy
+KEY: lock:employee:<id> → Set when locked
+
+Dispatcher (per call):
+
+1. Fetch list of free employees by rank
+2. For each employee:
+   a. Try to acquire lock via `SETNX lock:employee:<id> <uuid> PX 10000`
+   b. If acquired:
+       - Mark employee as busy (set `employee:<id>:status` = busy)
+       - Assign call to employee
+       - Exit loop
+   c. If not acquired: try next employee
+
+
+Database:
+
+Call Db:
+call_id, user_id, call_status:waiting/accepted/completed/timeout/cancelled,
+employee_id
+
+Employee db:
+employee_id,name,status: free/busy, employee_rank:manager/respondent/director
+
+Employee DB	SQL	Structured data with relations (e.g., employee → role). ACID needed.
+Call DB	SQL or NoSQL (hybrid)	SQL if you care about call audit/history; NoSQL for high-speed inserts.
