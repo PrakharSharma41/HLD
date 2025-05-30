@@ -1,0 +1,53 @@
+Functional Requirements:
+1. user can search for room based on time and location(maybe floors)
+2. user can book/cancel room
+3. user can see list of room booked
+4. user can send notification to meeting members
+
+Non Functional Requirements:
+1. high consistency 
+2. handle concurrent booking
+3. available
+4. high write 
+
+API Design:
+1. GET api/search
+response List<Rooms>
+
+2. GET api/search/roomName?date=
+response List<Time> room availableTime
+
+3. GET api/search/rooms?from=&to=
+response List<Rooms>
+
+4. POST api/book/roomName?from=&to=
+response meetingId
+
+5. POST api/cancel/roomName?meetingId=
+response 200
+
+6. GET api/list?userName?from=&to=
+response List<Meetings>
+
+
+Database:
+sql over nosql since it provides transactions that can prevent double booking
+rooms:
+room_id, floor_id,room_name,isfunctionable
+
+meetings:
+meeting_id,room_id, from_time,to_time,date,List<User>, 
+organizer_user
+
+user:
+user_id, user_name
+
+
+Scalability:
+1. use redis for concurrent locking: SET lock:meetingId  "locked"  NX PX 1000
+2. use multiple instances of service
+3. can shard room table by floor as well.
+4. if low number of rooms and high meetings request:
+ 4.1 Caching frequent searches in Redis
+ 4.2 Shard meetings by room ID + date range, meetings list for a particular room will become efficient
+ 4.3 indexing in meetings table can be useful in case of get api to search rooms based on from and to
