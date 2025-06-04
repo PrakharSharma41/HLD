@@ -30,7 +30,7 @@ rules in our tool is basically a combination of properties from a log line like
     log_level, log_message,source_file, remediation, cause, problem
 
 APIS:
-dont use metadata api call
+dont use metadata api call, it can cause confusion while explaining the project
 GET /logs/metadata
 params: log_type,log_path
 response: log_bundle_path,is_analyzed,log_bundle_size,log_bundle_id,log_type

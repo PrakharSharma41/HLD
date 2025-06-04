@@ -1,0 +1,18 @@
+Use Case	Best Choice
+Real-time, fast-changing leaderboards (e.g., per-minute updates, top N scores)	✅ Redis
+Persistent, high-availability leaderboard with flexible queries and durability	✅ DynamoDB
+
+Redis vs DynamoDB for Leaderboards
+Feature	                    Redis	                                     DynamoDB
+Data model	                In-memory key-value store, with sorted sets	 NoSQL key-value/document
+Performance	                Ultra-fast (in-memory)	                     Fast, but slower than Redis
+Top-N Ranking (ZREVRANGE)	✅ Built-in with ZADD and ZREVRANGE	        ❌ Needs manual sorting/secondary index
+Rank of a user (ZRANK)	    ✅ Very fast	                                ❌ Requires full scan or GSI
+Atomic updates	            ✅ Atomic operations	                        ⚠️ Needs careful write design (conditional writes)
+Persistence	                ⚠️ Optional (snapshot or AOF)	              ✅ Persistent by default
+Scaling	                    Horizontal with Redis Cluster                ✅ Native horizontal scaling
+Cost	                    Cheaper for real-time + short-term data	     Potentially cheaper for persistent workloads
+Complex queries	            ❌ Limited	                                ✅ Supports some query flexibility
+
+in DynamoDB we need to define partition key ,which can be combination of game_id,user_id and a sort key which will be score
+we will have multiple sorted partitions similar to redis case

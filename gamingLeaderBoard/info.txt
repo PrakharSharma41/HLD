@@ -28,6 +28,7 @@ single record of player  32 bytes
 storage for a dady 50Mplayers/day * 32 bytes/player 1600MB
 storage for 5 years: 1600MB * 5 * 365 approx 3 TB
 
+
 in redis we have leaderboards data which is a sorted set based on score and hash data which is players data
 
 SQL query to calculate the rank of a specific player:
@@ -70,3 +71,6 @@ when we want to update score of a player, we will update the shard for that play
 
 when we want to see top k players, we find top players for each shard and the combine them to find top k players , this will increase 
 read latency
+
+
+
