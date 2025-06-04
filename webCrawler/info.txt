@@ -1,0 +1,76 @@
+What is web crawler?
+It is a program that automatically traverses the web by downloading web pages and following links from one page to another.
+Use cases:
+
+1. Search engine indexing: This is the most common use case. A crawler collects web pages to create a local index for search engines. 
+2. Web archiving: This is the process of collecting information from the web to preserve data for future uses.
+3. Web monitoring. The crawlers help to monitor copyright and trademark infringements over the Internet.
+
+Functional Requirements:
+1. Crawl the full web and starting from seed urls
+2. extract text data and store
+
+Scale:
+10B web pages
+2MB per web page 
+
+
+Non Functional Requirements:
+1. fault tolerant(resume crawling without losing progress)
+2. politeness(not overload website server to download file)use robots.txt file 
+3. scale to 10B pages
+4. efficiently crawl: dont parse webpages that have already been parsed
+
+
+Domain table:
+domain, lastCrawledTime, userAgent, disallow, crawlDelay
+
+Url table: DynamoDB
+url(PK),s3LinkToHTML,lastcrawlTime,hash(hash of html content, because different url can have same html content),depthUrl
+
+depthUrl is used so that we dont go into too much depth of a url
+
+Core entities:
+1. Text data
+2. URL metadata
+3. Domain metadata
+
+API/interface:
+input: set of seed urls
+output: text data
+
+Data Flow:
+1. take seed urls form frontier(set of urls yet to be crawled) and ip from dns
+2. fetch html
+3. extract text from html
+4. store that text in database
+5. extract the urls in the text and add to our frontier
+6. repeat steps 1 to 5 until all urls have been crawled 
+
+
+crawler downloads the url from the webserver, if it fails with some error it needs to retry
+we will use exponential backoff in this case
+create separate topic in kafka(by default does not support backoffs) queue for failed urls  along with their backoff time
+
+we can also use amazon sqs here, it by default supports backoff functionality
+we set vsibility timeout for msg, its the time when other consumers can not see the msg
+
+we can also set the max retry count and store msg after max count in dead letter queue
+
+we will have offset in the partition in frontier queue so that if crawler starts up again
+it will know from which offset to restart from
+
+
+Politeness:
+maintained using robots.txt
+use Domain table to store domain related information
+domain, lastCrawledTime, userAgent, disallow, crawlDelay
+
+
+crawler will check the last crawl time and crawl delay with current time to check if it is allowed to crawl
+
+use domain specific rate limiter
+
+Efficiency:
+before sending a message to parsing queue, we need to check that html hash is already present in url metadata or not
+because differnt urls can be duplicate(so we hash their content)
