@@ -1,0 +1,19 @@
+Scaling PostgreSQL to Handle Millions of Records
+Primary-Replica Setup:
+
+All insert, update, and delete operations are directed to the primary database, while all read operations are served from replicas.
+PostgreSQL can handle 10,000 to 20,000 transactions per second (TPS) on high-end hardware.
+With read replicas, overall read capacity can scale significantly, potentially reaching 100,000+ requests per second (RPS).
+Simple Reads: 10ms latency with proper indexing and caching.
+Complex Reads: Up to 100ms latency, depending on query complexity and data volume.
+
+To handle large volumes of tagging data, partitioning tables by date or product type can optimize query performance and manage storage efficiently.
+
+postgres acts as source of truth
+
+Which Partitioning Strategy to Choose?
+Partition Column	When to Use
+tag_id	When tag-based content retrieval dominates (e.g., tag feeds)
+content_id	When content-based tag retrieval dominates (e.g., showing tags on content pages)
+product_type	When you support multiple products/apps and want logical separation
+created_at (range)	For time-based TTL/purging, not for real-time access patterns

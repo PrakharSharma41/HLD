@@ -1,0 +1,71 @@
+Functional Requirements:
+1. Add tag to a content
+2. Remove a tag from a content
+3. Search a tag
+4. Retrieve tags for a content
+5. Get contents list of tag
+6. View Popular tags
+
+Non Functional Requirements:
+1. Scalability 100M requests per day
+2. Low latency
+3. Fault tolerant
+4. High availability
+5. Consistency
+6. Durability
+7. Analytics/Reporting (Optional)
+
+Estimation:
+100M requests per day = 1157 QPS (With Peak 2–3x => 2.5–3k QPS)
+Reads Write ratio = 70:30
+30M writes per day ~= 350 QPS
+70M Reads per day ~= 800 QPS
+
+Storage:
+id - Integer = 4 bytes
+name - String = 2 bytes per character ~= 50bytes
+content_id - Integer = 4 bytes
+product_type - String = 20–30 bytes
+Approx ~= 100bytes per tag
+
+Per day write = 30M * 100bytes ~= 3GB per day ~= 1TB per year
+
+
+Database:
+Tag table:
+id, name, description, timestamp
+
+Content Tag table:
+id, tag_id, content_id, product_type(jira, confluence, trello)
+index on both content_id and tag_id
+
+
+
+
+Components
+API Gateway: Handles authorization, authentication, and rate limiting.
+Load Balancer: Distributes traffic across services and replicas to ensure even load distribution.
+Cache: Stores frequently accessed tags and popular searches to reduce the load on the database and improve read latency, especially for high-demand tags.
+ElasticSearch: Provides full-text search capabilities, ideal for fast retrieval and indexing of tags. Supports complex searches across tags and is well-suited for aggregating data (e.g., identifying the most popular tags).
+Add Tag Service: Adds a new tag and maps it to the corresponding content, then writes the data to the primary database.
+Search Tag Service: Searches for tags and retrieves a list of all related content, reading from read replicas.
+Analytics DB: A time-series database to store metrics related to tags, such as usage statistics and popular tags.
+Apache Flink: Analyzes tag popularity over specific time ranges (e.g., last 24 hours, past week) to identify trending tags. Flink can process real-time data streams and compute aggregations, such as counting tag occurrences within the defined time windows, enabling dynamic updates to the list of popular tags.
+
+
+get all contents with a specific tag:
+
+Recommended Hybrid Approach
+Use Case	                        Data Source
+✅ Accurate, real-time view	       PostgreSQL
+⚡ Fast lookup for hot tags	        Elasticsearch
+🧠 Tag-based content feed	        Elasticsearch
+📥 Pagination, filtering, sorting	Elasticsearch (with proper schema design)
+
+
+Get top tags:
+Approach	        Accuracy	Speed	 Use Case
+PostgreSQL GROUP BY	✅ High	   ❌ Slow	Back-office stats, admin dashboards
+Redis counters	    ❌ Medium   ✅ Fast	Real-time UI like trending tags
+Kafka + Aggregator	✅ High     ✅ Fast	Scalable + fault-tolerant analytics
+Elasticsearch	    ⚠️ Approx	 ✅ Fast	  Search-side popularity display
