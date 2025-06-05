@@ -19,24 +19,78 @@ Retrieve all or the latest execution histories and their status related to a spe
 Modification Operations
 
 Allow users to create or delete their job schedules
-Update the Job’s next execution timestamp byjob_id
+Update the Job’s next execution timestamp by job_id
 Update task status (Scheduled, Completed, Failed)
 
+API:
 
-our system is not directly coupled, so we can use nosql database
+GET /api/jobs/list?user_id=""
+response:
+{
+   ["job_id","next execution time","is recurring","last execution time"]
+}
+
+GET /api/jobs/list?user_id=""&&currentTime=""
+response{
+   ["job_id","next execution time","is recurring","last execution time"]
+}
+
+GET /api/jobs/{job_id}?user_id=""&&historyCount=
+response:
+{
+   ["executionTime":"", executionStatus:""]
+}
+
+
+POST /api/jobs/create_jobs?user_id=""
+request_params:
+   "executionInterval": "PT3H",
+   "maxRetryCount": 3,
+   "is_reccuring": true
+response-status: HTTP/1.1 201 Created
+response-body: 
+{
+   "job_id": "123456"
+}
+
+POST /api/jobs/{job_id}/updateJob?userId=""
+request params:
+   "executionTime":
+   "is_recurring":
+   "status": scheduled/waiting/cancelled
+response:{
+   200
+}
+
+
+DELETE /api/jobs/{job_id}/deleteJob?userId=""
+response:{
+   "job deleted"
+}
+
+
+
+
+SQL is usually the better fit for these reasons:
+1. Strong Consistency & Transactions: Scheduling often requires atomic operations, like: "Mark job as running" and "lock it" for one worker.
+2. Structured Schema Jobs typically have a predictable structure:
+3. Reliable Querying You often need queries like: select * based on status 
+4. indexing is easier to query
+
 
 DATABASE:
 
 Job table:
 user_id, job_id,is_recurring,interval,max_retry_count,created_time
-partition key is user_id
-sort_key is job_id
+index based on created_time
+job_id is pk
 
-Task_schedule:
+Task_schedule: shard this table as well
+
+can use this also instead of modified one
 store the next execution time for each job. By doing this it will be easy for us to query all scheduled tasks for the current minute(as we execute our tasks in each minute). 
 job_id, next_execution_time
-partition key is next_execution_time
-sort key is job_id
+index based on next_execution_time and status
 
 modified:
 job_id,segment,next_execution_time
@@ -49,19 +103,6 @@ job_id, execution_time,status,retry_count,last_update_time
 partition key is job_id
 
 
-API:
-create_job
-POST /users/{user_id}/jobs
-request_params:
-   "executionInterval": "PT3H",
-   "maxRetryCount": 3,
-   "is_reccuring": true
-
-response-status: HTTP/1.1 201 Created
-response-body: 
-{
-   "job_id": "123456"
-}
 
 job_service:
 takes this input, create its detail in jobs table
@@ -94,3 +135,6 @@ if task execution fails, execution service checks if task is retryable and can p
 in kafka, that can be picked by another consumer
 
 If the retry count has surpassed its limit, the task’s execution status will be updated FAILED and the task will be produced to task_dlqtopic. DLQ stands for Dead Letter Queue.
+
+Scheduling service is polling db every minute which is enhanced by:
+1. task schedule table is indexed based on next execution time and status
