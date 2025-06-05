@@ -1,0 +1,16 @@
+Sorted Sets:
+1. Each user has a sorted set associated with them. The keys and values are identical, and equal to the (microsecond) times when actions were attempted.
+
+2. When a user attempts to perform an action, we first drop all elements of the set which occured before one interval ago. This can be accomplished with Redis’s ZREMRANGEBYSCORE command.
+
+3. We fetch all elements of the set, using ZRANGE(0, -1).
+
+4. We add the current timestamp to the set, using ZADD.
+
+5. We set a TTL equal to the rate-limiting interval on the set (to save space).
+
+6. After all operations are completed, we count the number of fetched elements. If it exceeds the limit, we don’t allow the action.
+
+7. We also can compare the largest fetched element to the current timestamp. If they’re too close, we also don’t allow the action.
+
+8. The advantage of this approach is that all Redis operations can be performed as an atomic action, using the MULTI command. 

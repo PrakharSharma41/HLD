@@ -1,0 +1,8 @@
+1. Each user has a two keys associated with them: the token bucket, and a timestamp of the last time the bucket was refilled.
+
+2. When a user attempts to perform an action, we fetch the stored timestamp.
+
+3. We calculate how many tokens the user should have been granted since that last request.
+
+4. We can then proceed with the algorithm, using this new token count.
+
