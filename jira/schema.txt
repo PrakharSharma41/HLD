@@ -1,0 +1,78 @@
+Users (
+  user_id UUID PRIMARY KEY,
+  name TEXT,
+  email TEXT UNIQUE,
+  password_hash TEXT,
+  role ENUM('Admin', 'Manager', 'Developer', 'Reporter'),
+  created_at TIMESTAMP
+)
+
+Projects (
+  project_id UUID PRIMARY KEY,
+  name TEXT,
+  key TEXT UNIQUE, -- e.g. "ENG"
+  created_by UUID REFERENCES Users(user_id),
+  created_at TIMESTAMP
+)
+Issues (
+  issue_id UUID PRIMARY KEY,
+  project_id UUID REFERENCES Projects(project_id),
+  title TEXT,
+  description TEXT,
+  status TEXT, -- e.g., Backlog, To Do, In Progress, Done
+  priority ENUM('Low', 'Medium', 'High', 'Critical'),
+  issue_type ENUM('Bug', 'Task', 'Story', 'Epic'),
+  reporter_id UUID REFERENCES Users(user_id),
+  assignee_id UUID REFERENCES Users(user_id),
+  due_date DATE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+Labels (
+  label_id UUID PRIMARY KEY,
+  name TEXT
+)
+
+IssueLabels (
+  issue_id UUID REFERENCES Issues(issue_id),
+  label_id UUID REFERENCES Labels(label_id),
+  PRIMARY KEY(issue_id, label_id)
+)
+Comments (
+  comment_id UUID PRIMARY KEY,
+  issue_id UUID REFERENCES Issues(issue_id),
+  author_id UUID REFERENCES Users(user_id),
+  content TEXT,
+  created_at TIMESTAMP
+)
+ActivityLogs (
+  log_id UUID PRIMARY KEY,
+  issue_id UUID REFERENCES Issues(issue_id),
+  actor_id UUID REFERENCES Users(user_id),
+  action TEXT, -- e.g., "Changed status from TODO to DONE"
+  created_at TIMESTAMP
+)
+Workflows (
+  project_id UUID REFERENCES Projects(project_id),
+  from_status TEXT,
+  to_status TEXT,
+  allowed_roles TEXT[] -- e.g., ["Admin", "Manager"]
+)
+
+CREATE TABLE audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    timestamp TIMESTAMP NOT NULL DEFAULT now(),
+    actor_id UUID NOT NULL,
+    entity_type TEXT NOT NULL,   -- e.g., 'issue', 'project'
+    entity_id UUID NOT NULL,
+    action TEXT NOT NULL,        -- e.g., 'created', 'updated', 'deleted'
+    before JSONB,                -- nullable for "create" events
+    after JSONB,                 -- nullable for "delete" events
+    source TEXT,                 -- 'api', 'system', 'scheduler'
+    trace_id TEXT                -- for tracing through request flow
+);
+Why SQL?
+Easy to write
+Easy to query (audit trails, compliance reports)
+JSONB columns let you store change diffs flexibly
+Strong consistency

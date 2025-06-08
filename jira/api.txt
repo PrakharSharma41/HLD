@@ -1,0 +1,58 @@
+1. signup
+POST /auth/signup
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "strong_password"
+}
+
+2. get user profile
+GET /users/{user_id}
+
+3.  create projects
+POST /projects
+{
+  "name": "Engineering",
+  "key": "ENG"
+}
+
+4. get details of projects
+GET /projects/{project_id}
+
+5. create issue
+POST /projects/{project_id}/issues
+{
+  "title": "Fix login bug",
+  "description": "Steps to reproduce...",
+  "priority": "High",
+  "status": "To Do",
+  "assignee_id": "uuid",
+  "labels": ["bug", "login"],
+  "due_date": "2025-06-15"
+}
+
+6. get issues from a project 
+GET /projects/{project_id}/issues
+Supports query params:
+status, priority, assignee_id, label, search
+
+7. get labels
+GET /projects/{project_id}/labels
+
+8. search
+GET /search/issues?q=login+bug&project_id=xyz&assignee_id=abc&status=To+Do
+
+[
+  {
+    "issue_id": "uuid",
+    "title": "Fix login bug",
+    "status": "To Do",
+    "priority": "High"
+  }
+]
+
+9. post comment
+POST /issues/{issue_id}/comments
+{
+  "content": "I think this bug is related to the token refresh."
+}

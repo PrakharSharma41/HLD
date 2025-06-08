@@ -74,3 +74,5 @@ use domain specific rate limiter
 Efficiency:
 before sending a message to parsing queue, we need to check that html hash is already present in url metadata or not
 because differnt urls can be duplicate(so we hash their content)
+
+

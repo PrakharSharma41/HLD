@@ -1,0 +1,20 @@
+Functional Requirements
+1.Users can:
+    1.1 Create, update, delete, search issues
+    1.2 Assign issues to users
+    1.3 Add labels, priorities, due dates, attachments
+    1.4 Comment on issues
+2. View activity logs
+3. System supports:
+    3.1 Multiple projects and boards (Scrum/Kanban)
+
+
+Non-Functional Requirements
+1. Scalability: Should support thousands of users and issues per org
+2. High Availability: For enterprise use cases
+3. Audit Trail: Track changes to issues, users, workflows
+4. Security: Role-based access control (RBAC)
+5. Searchability: Fast full-text and structured search (e.g., "priority:high assignee:john")
+
+For full text search, we will use elastic search and sql db will be source of truth
+
