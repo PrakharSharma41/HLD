@@ -1,6 +1,11 @@
-requirements:
-what types of notifications? push/sms/email
-supported devices: ios/android
+functional requirements:
+1. what types of notifications? push/sms/email
+2. supported devices: ios/android
+
+non functional requirements:
+1. reliable, should send notification, prevent data loss of failed notification
+2. rate limiting, not overload the customer with too many notification(can be done by notification servers)
+3. scalable
 
 database:
 user:
@@ -8,6 +13,13 @@ user_id,email_id, country
 
 device:
 user_id, device_id
+
+notification:
+notification_id, device_id, retry_count,user_id,last_updated,status: success/failed
+
+
+if high volume, we can use cassandra as well 
+
 
 step3: 
 scalability ,prevent data loss
@@ -17,3 +29,6 @@ When a notification event first arrives, we check if it is seen before by checki
 scalability:
 Notification templates are introduced to avoid building every notification from scratch. A notification template is a preformatted notification to create your unique notification by customizing parameters, styling, tracking links, etc. 
 rate limiting at notification servers
+
+email apn could be mailchimp
+message apn could be twilio
