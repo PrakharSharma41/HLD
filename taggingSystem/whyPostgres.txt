@@ -13,7 +13,7 @@ postgres acts as source of truth
 
 Which Partitioning Strategy to Choose?
 Partition Column	When to Use
-tag_id	When tag-based content retrieval dominates (e.g., tag feeds)
-content_id	When content-based tag retrieval dominates (e.g., showing tags on content pages)
-product_type	When you support multiple products/apps and want logical separation
+tag_id	            When tag-based content retrieval dominates (e.g., tag feeds)
+content_id	        When content-based tag retrieval dominates (e.g., showing tags on content pages)
+product_type	    When you support multiple products/apps and want logical separation
 created_at (range)	For time-based TTL/purging, not for real-time access patterns
