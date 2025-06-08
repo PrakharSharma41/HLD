@@ -21,3 +21,22 @@ POST /api/documents/{documentId}/operations
 {
   "status": "success"
 }
+
+WS /api/documents/{documentId}/collaborate
+Example message from client: { "type": "operation", "operation": { "type": "insert", "position": 15, "text": "client text" } }
+Example message from server: { "type": "operation", "userId": "user-789", "operation": { "type": "insert", "position": 10, "text": "new text" } }
+
+Commit a New Version (Delta-based) POST /documents/{document_id}/versions
+{
+  "parent_version_id": "v-007",
+  "created_by": "user-456",
+  "message": "Fixed typo in section 3",
+  "changes": [
+    { "op": "insert", "pos": 53, "text": "updated content" },
+    { "op": "delete", "pos": 120, "length": 5, "original": "typo" }
+  ]
+}
+{
+  "version_id": "v-008",
+  "version_number": 8
+}

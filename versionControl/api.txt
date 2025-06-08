@@ -1,0 +1,47 @@
+1. create document POST /documents
+{
+  "document_id": "doc-abc",
+  "version_id": "v-001"
+}
+
+
+2. Get Document by ID GET /documents/{document_id}
+{
+  "document_id": "doc-abc",
+  "title": "Design Spec",
+  "current_version": 8,
+  "created_at": "...",
+  "created_by": "user-123"
+}
+
+
+3. Commit a New Version (Delta-based) POST /documents/{document_id}/versions
+{
+  "parent_version_id": "v-007",
+  "created_by": "user-456",
+  "message": "Fixed typo in section 3",
+  "changes": [
+    { "op": "insert", "pos": 53, "text": "updated content" },
+    { "op": "delete", "pos": 120, "length": 5, "original": "typo" }
+  ]
+}
+{
+  "version_id": "v-008",
+  "version_number": 8
+}
+
+
+4. Rollback to a Specific Version POST /documents/{document_id}/rollback
+{
+  "target_version_number": 5,
+  "requested_by": "user-456"
+}
+
+5. Diff Between Two Versions GET /documents/{document_id}/diff?from_version=5&to_version=8
+{
+  "diff": [
+    { "op": "insert", "pos": 110, "text": "new line" },
+    { "op": "delete", "pos": 75, "length": 4, "original": "line" }
+  ]
+}
+

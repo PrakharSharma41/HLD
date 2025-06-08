@@ -1,0 +1,31 @@
+Functional Requirements:
+
+1. Users can create/update/delete documents
+2. Changes to documents are versioned
+3. View history of versions
+4. Compare versions (diff)
+5. Rollback to previous versions
+6. Comment on changes (optional)
+7. Support concurrent editing with conflict resolution
+8. Search documents and versions
+
+Non-Functional Requirements
+
+1. Scalability: Should handle millions of documents and users
+2. Availability: High availability for read/write
+3. Latency: Low latency for reads, reasonable for writes
+4. Consistency: Eventual for collaboration, strong for version commit
+
+
+
+in rollback to a specific version, we will use versions table and undo the operation from latest version to
+desired version and set it as the latest version
+
+How to implement document version history?
+    Store periodic snapshots (e.g., every 100 changes)
+    Store deltas between snapshots as the changes happening snapshots
+
+
+when client wants to create versions, then client can either send the batch of changes store in
+local in client side or we can store changes from our side in redis or in memory
+

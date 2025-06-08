@@ -1,0 +1,20 @@
+documents table:
+Document(id, title, owner_id, created_at, updated_at, current_version_id)
+
+version table:
+Version(id, document_id, version_number, content_hash, created_by, created_at, parent_version_id, message/changes(JSONB) Delta operations (insert, delete, format))
+
+user table:
+User(id, name, email, role)
+
+
+comment table:
+Comment(id, document_id, version_id, range_start, range_end, user_id, content, timestamp)
+
+
+What to Store on Server (Until Version is Committed) (can be stored in memory as well)
+Field	        Where	            TTL
+doc_id	        Key in Redis	    10 mins
+base_version_id	Points to latest committed version	
+pending_deltas	List of ops	        Redis or temp table
+last_updated	For garbage collection
