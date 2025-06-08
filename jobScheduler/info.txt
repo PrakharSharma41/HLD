@@ -22,51 +22,6 @@ Allow users to create or delete their job schedules
 Update the Job’s next execution timestamp by job_id
 Update task status (Scheduled, Completed, Failed)
 
-API:
-
-GET /api/jobs/list?user_id=""
-response:
-{
-   ["job_id","next execution time","is recurring","last execution time"]
-}
-
-GET /api/jobs/list?user_id=""&&currentTime=""
-response{
-   ["job_id","next execution time","is recurring","last execution time"]
-}
-
-GET /api/jobs/{job_id}?user_id=""&&historyCount=
-response:
-{
-   ["executionTime":"", executionStatus:""]
-}
-
-
-POST /api/jobs/create_jobs?user_id=""
-request_params:
-   "executionInterval": "PT3H",
-   "maxRetryCount": 3,
-   "is_reccuring": true
-response-status: HTTP/1.1 201 Created
-response-body: 
-{
-   "job_id": "123456"
-}
-
-POST /api/jobs/{job_id}/updateJob?userId=""
-request params:
-   "executionTime":
-   "is_recurring":
-   "status": scheduled/waiting/cancelled
-response:{
-   200
-}
-
-
-DELETE /api/jobs/{job_id}/deleteJob?userId=""
-response:{
-   "job deleted"
-}
 
 
 
