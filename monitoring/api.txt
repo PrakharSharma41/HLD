@@ -1,0 +1,10 @@
+We will install an agent on each server, which can collect data and send it back to a central server.
+
+POST /api/data: The request body includes the server ID, timestamp, and data, as below:
+{
+  "server_id": String,
+  "timestamp": Timestamp,
+  "data": {
+    // data
+  }
+}

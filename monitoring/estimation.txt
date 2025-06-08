@@ -1,0 +1,16 @@
+Resource Estimation
+Assuming each metric is submitted every 10 seconds (submitted 8640 times per day), and each server has 6 metrics.
+
+Assuming the read-write ratio is 1:100.
+
+Assuming each metric is 100 bytes.
+
+Writes Per Second: 10,000 servers / 10s * 6 = 6,000 RPS
+
+The number 6 here represents 1 time for CPU, 1 time for memory, 1 time for disk usage, 1 time for system log, 1 time for web server access log, and 1 time for web server error log.
+
+Reads Per Second: 6,000 RPS / 100 = 60 RPS
+
+Storage: 10K DAU * 51840(Write operations per user per day) * 100Bytes * 31(days of month) * 60(months of one year) ~= 88TB.
+
+Use the resource estimator to calculate.

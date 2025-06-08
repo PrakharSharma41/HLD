@@ -1,0 +1,34 @@
+A time-series database (InfluxDB/TimescaleDB) is used to efficiently store and retrieve time-stamped server data.
+
+A relational database is used to store alert rules, notifications, metadata of monitored servers, and some configuration information of the dashboard, etc.
+
+Server Data (Saved to TSDB):
+
+time (timestamp): The time the data point was recorded.
+server_id (string): Identifier of the server from which the data originated.
+cpu_usage (float): The CPU usage of the server at the recorded time.
+memory_usage (float): The memory usage of the server at the recorded time.
+disk_usage (float): The disk usage of the server at the recorded time.
+system_logs (float): The network traffic on the server at the recorded time.
+access_logs (text): Any access logs recorded at the time.
+error_logs (text): Any error logs recorded at the time.
+we can partition the data in our time-series database. Partitioning can be done based on time or server_id. 
+
+Alerts Table (RDBMS):
+
+alert_id (string): Unique identifier for each alert.
+server_id (string): Identifier of the server associated with the alert.
+rule_id (string): Identifier of the rule that triggered the alert.
+time (timestamp): The time the alert was generated.
+status (string): Status of the alert (e.g., "open", "acknowledged", "closed").
+
+Rules Table (RDBMS):
+
+rule_id (string): Unique identifier for each rule.
+rule_name (string): Name of the rule.
+rule_condition (string): The condition under which the rule triggers an alert.
+
+Servers Table (RDBMS):
+
+server_id (string): Unique identifier for each server.
+server_name (string): Name of the server.

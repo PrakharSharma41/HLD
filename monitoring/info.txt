@@ -1,3 +1,21 @@
+Functional requirements:
+1. The system should continuously monitor data from a fleet of servers.
+2. The data to be collected includes CPU usage, memory usage, disk usage, system logs, and web server access and error logs.
+3. Users should be able to set alert rules based on certain conditions. For example, if the average CPU usage in the last 5 minutes exceeds 80%, an alert should be triggered.
+4. Alerts should be delivered to users via email, SMS, or push notifications within 1 minute of being triggered.
+5. Users should be able to view real-time and historical data on a web-based dashboard.
+
+
+
+
+Non-Functional Requirements:
+1. Scalability: The system should initially support monitoring 10,000 servers, with the capacity to scale by 20% annually.
+2. Reliability: The system should accurately collect and process server data, and reliably deliver alerts.
+3. Availability: The system should be operational 24/7 to ensure continuous monitoring and alerting.
+4. Consistency: The system should provide consistent data across all servers and over time.
+5. Latency: The system should process and display data in real-time or near real-time.
+6. Efficiency: The system should efficiently handle high volumes of data and alert rules.
+
 a monitoring system contains 5 components
 
 • Data collection: collect metric data from different sources.
