@@ -7,3 +7,17 @@ the nodes converge on the same data
 crdt operations are idempotent, example:
 insert x at position y, if we receive it multiple times, they should be performed only once
 
+in this lets say we have 3 users and 3 servers a,b,c
+each user sends request to different servers, now these servers need to sync as well.
+
+so each server will have an entry containing last_server_event,server_id(default event is empty)
+
+example:
+A:  
+last_server_event,serverB
+last_server_event,serverC
+
+when A receives events from C, lets say C1 and C2, it can be unordered also, so A will check
+that if it receives C2, its last_server_event should be either C1, since it is null, it will
+store C2 event till it processes C1 first and if C1 doesnt come, then it will call server C 
+for event C1.

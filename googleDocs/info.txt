@@ -30,6 +30,8 @@ K: document_id, V: Json object relevant to the comment. {line:1, position: 123, 
 Database Schema for Versioning
     document_snapshots (stores periodic full snapshots)
     document_changes (stores deltas between snapshots)
+
+
 CREATE TABLE document_snapshots (
     document_id UUID,
     version_id UUID PRIMARY KEY,
@@ -90,3 +92,9 @@ A. Periodic Snapshots & Versioning
 Every few minutes, Google Docs may serialize the document tree into a protobuf/JSON format and store it in Google Cloud Storage (similar to S3).
 
 This allows users to recover older versions (Google Docs’ Version History feature).
+
+
+CRDT        (Conflict-Free Replicated Data Type)	                        OT (Operational Transformation)
+Definition	Data structures designed to converge across distributed replicas without conflicts	Algorithm to transform concurrent edits so they apply in a consistent order
+Approach	State-based or operation-based, mergeable data	                Transform edits in real-time to resolve conflicts
+Goal	    Ensure eventual consistency without coordination	            Ensure real-time consistency through transformation
