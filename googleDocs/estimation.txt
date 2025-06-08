@@ -1,0 +1,6 @@
+Scale Requirements
+DAU: 1 million.
+Traffic Spike: 5x during peak hours
+Read to write ratio: 10:1
+Average Document Size: 100KB. Assume each user has an average of 10 documents.
+Edit Frequency: 1 edit per second per document during peak hours

@@ -1,0 +1,5 @@
+Operational transform works for many use cases but if number of users is large
+then there will be load on the server that is doing write operation, since all 
+write operations need to go on single serever in OT
+
+hence we can also use CRDT

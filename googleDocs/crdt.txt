@@ -1,0 +1,9 @@
+we want to avoid having to send each write through a single server before sending it off
+to clients, or else that server will become a bottleneck
+
+in CRDT, data can live on multiple servers such that when we eventually merge the crdts, all of
+the nodes converge on the same data
+
+crdt operations are idempotent, example:
+insert x at position y, if we receive it multiple times, they should be performed only once
+

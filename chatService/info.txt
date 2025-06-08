@@ -52,3 +52,17 @@ channel_id,user_id
 message_sync:
 user_id,device_id,last_message_offset
 
+in key value db, we can also use redis sorted set 
+Key: chat:A:B
+Member: message_id (or serialized JSON string)
+Score: timestamp (or message_id as float)
+add message: ZADD chat:A:B 1620001234 "{from: A, to: B, content: 'Hello'}"
+
+for dynamodb:
+{
+  "chat_id": "userA#userB",                   <-- Partition Key
+  "message_id": "2025-06-06T15:45:01Z",       <-- Sort Key
+  "from_user": "userA",
+  "to_user": "userB",
+  "content": "Hi!"
+}

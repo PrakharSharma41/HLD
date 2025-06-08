@@ -7,12 +7,6 @@ FUNCTIONAL REQUIREMENTS:
 3. Users can make import and export a document
 4. A user can add a comment to the document
 
-Scale Requirements
-DAU: 1 million.
-Traffic Spike: 5x during peak hours
-Read to write ratio: 10:1
-Average Document Size: 100KB. Assume each user has an average of 10 documents.
-Edit Frequency: 1 edit per second per document during peak hours
 
 we need to store document metadata and document content and comment data
 
@@ -26,6 +20,8 @@ The document metadata includes:
     Versioning pointers, references to document snapshots, and other attributes.
 
 use RDBMS for above because we need Data Integrity and Transactional Consistency
+the relationship between users, documents, and permissions should be strictly enforced.
+
 
 for comments:  use a NoSQL DB for comment service
 The dataType could be K-V.
@@ -54,9 +50,12 @@ CREATE TABLE document_changes (
 
 Synchronizing Document State
  use websocket connection with client and docs service
+We could include the websocket service in Document Service, 
+but it would be better to have a separate service because to separate 
+the concerns of document storage and document synchronization and to make the Document Service stateless.
 
-
-The primary goal of Operational Transformation (OT) is to ensure that all users see the same final document state after a series of edits, even if those edits are made out of order.
+The primary goal of Operational Transformation (OT) is to ensure that all users see the same final document state 
+after a series of edits, even if those edits are made out of order.
 
 
 How to implement document version history?
