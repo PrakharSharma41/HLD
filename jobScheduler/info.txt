@@ -6,6 +6,13 @@ FUNCTIONAL REQUIREMENTS:
 4. Job execution style: The system should support both one-time execution, recurring style
 5. Task fail strategy: The system should have the capability to support a retry feature
 
+
+NON FUNCTIONAL REQUIREMENTS:
+1. scalable
+2. retry on failed job 
+3. fault tolerant
+4. available 
+
 assume 50M task to be executed daily
 
 
