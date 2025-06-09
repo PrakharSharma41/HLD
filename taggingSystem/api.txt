@@ -4,11 +4,15 @@ POST — /api/v1/content/<content_id>/tags
 {name:”example”, product_type:”jira”, content_id:”jira-123"}
 
 2. Remove tag from a content
-DELETE — /api/v1/content/<content_id>/tags/tag
+DELETE — /api/v1/content/<content_id>/tags/{tag_id}
 
 3. Get Tags for a content
 GET — /api/v1/content/<content_id>/tags
 
 4. Search Tags
-GET — /api/v1/tags/tag
+GET — /api/v1/tags/search
+Response: {page:1, total:3, size:500, items: [{product_type:”jira”, content_id:”jira-123"}]}
+
+5. Search Tags based on some text
+GET - /api/v1/tags/search?tag=<>
 Response: {page:1, total:3, size:500, items: [{product_type:”jira”, content_id:”jira-123"}]}

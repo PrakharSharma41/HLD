@@ -69,3 +69,5 @@ PostgreSQL GROUP BY	✅ High	   ❌ Slow	Back-office stats, admin dashboards
 Redis counters	    ❌ Medium   ✅ Fast	Real-time UI like trending tags
 Kafka + Aggregator	✅ High     ✅ Fast	Scalable + fault-tolerant analytics
 Elasticsearch	    ⚠️ Approx	 ✅ Fast	  Search-side popularity display
+
+For real-time display, maintain Redis counters (per tag_id) and sync hourly to analytics DB.
