@@ -1,0 +1,18 @@
+Users: Assume the system serves 50 million daily users.
+
+Notifications per user: On average, each user receives 5 notifications/day.
+
+Peak load: Assume the peak time sees 1 million notifications within 1 minutes (a common scenario during flash sales, for example).
+
+This means the system should handle:
+
+Notifications per day: 50 million x 5 = 250 million notifications/day
+
+Peak notifications per second: 1 million / 60 = ~17,000 notifications/second
+
+Storage Requirements
+Assuming average notification and user data size of 1KB.
+
+Storage for user data: 50 million * 1 KB = 50GB
+
+Daily Storage for notifications: 50 million * 5 * 1 KB = 250GB

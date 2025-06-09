@@ -93,3 +93,4 @@ Time-series storage	    Efficiently store metrics/events over time. Useful for t
 OLAP (columnar)         storage	Stores data by columns for fast aggregation across millions of rows.
 High compression	    Optimized for storing large amounts of log-like data efficiently.
 Aggregation at scale	Supports GROUP BY, SUM, COUNT, AVG, etc., over large datasets.
+

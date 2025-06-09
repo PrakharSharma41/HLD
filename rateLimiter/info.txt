@@ -22,3 +22,11 @@ clients are interacting with multiple rate limiters instance that connects to re
 1. we can either use locks to ensure synchronization 
 2. use sorted sets in redis
 
+some examples of rate limiting rules:
+domain: messaging 
+descriptors:
+-   key: message_type  
+    Value: marketing 
+    rate_limit:
+        unit: day 
+        requests_per_unit: 5
