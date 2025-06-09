@@ -71,3 +71,25 @@ Kafka + Aggregator	✅ High     ✅ Fast	Scalable + fault-tolerant analytics
 Elasticsearch	    ⚠️ Approx	 ✅ Fast	  Search-side popularity display
 
 For real-time display, maintain Redis counters (per tag_id) and sync hourly to analytics DB.
+
+
+We might use an Analytics DB(TimescaleDB) to store: 
+{
+  "tag_id": 101,
+  "tag_name": "bug",
+  "content_id": "jira-234",
+  "product_type": "jira",
+  "timestamp": "2025-06-09T13:00:00Z"
+}
+
+Then you can:
+
+Count how many times tag_id=101 was used in the last 7 days.
+Group by tag_name and order by count → show top N tags.
+
+What Analytics DBs Typically Support
+Feature            	    Description
+Time-series storage	    Efficiently store metrics/events over time. Useful for temporal queries.
+OLAP (columnar)         storage	Stores data by columns for fast aggregation across millions of rows.
+High compression	    Optimized for storing large amounts of log-like data efficiently.
+Aggregation at scale	Supports GROUP BY, SUM, COUNT, AVG, etc., over large datasets.
