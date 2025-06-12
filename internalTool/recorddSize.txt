@@ -1,0 +1,16 @@
+each record has:
+pid:                    long      8 bytes
+message:                text      256 to 1014 bytes, average: 512 bytes
+filename_without_ext:   text      32 bytes
+file_path:              string    128 bytes
+time:                   timestamp 8 bytes
+log_level:              string    16 bytes
+source_logfile:         string    64 bytes
+cvm_ip:                 string    approx 32 bytes(ipv4 15 chars)
+log_bundle_id:          long      8 bytes
+anomaly:                bool      1 to 4 bytes
+anomaly_category:       string    20 to 40 bytes
+line_number:            int       4 bytes
+log_hash:               string    32 to 64 bytes
+
+total approx record size: approx 928 bytes or 1 mb
