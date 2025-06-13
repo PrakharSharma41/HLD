@@ -1,7 +1,7 @@
 each record has:
 pid:                    long      8 bytes
 message:                text      256 to 1014 bytes, average: 512 bytes
-filename_without_ext:   text      32 bytes
+filename_without_ext:   string      32 bytes
 file_path:              string    128 bytes
 time:                   timestamp 8 bytes
 log_level:              string    16 bytes
@@ -14,3 +14,5 @@ line_number:            int       4 bytes
 log_hash:               string    32 to 64 bytes
 
 total approx record size: approx 928 bytes or 1 mb
+
+string is treated as exact match field whereas text is free form full text which is tokenized and analyzed
