@@ -1,0 +1,17 @@
+1. Post a tweet
+/api/post
+Parameters{
+    User ID (UUID): ID of the user.
+    Content (string): Contents of the tweet.
+    Media URL (string): URL of the attached media (optional).
+}
+Returns
+Result (boolean): Represents whether the operation was successful or not.
+
+
+2. Follow or unfollow a user
+/api/operation?follow(followerID: UUID, followeeID: UUID): boolean
+/api/operation?unfollow(followerID: UUID, followeeID: UUID): boolean
+
+3. Get newsfeed
+/api/getNewsfeed(userID: UUID)
