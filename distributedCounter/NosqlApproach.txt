@@ -22,3 +22,19 @@ efficiently but it has some problems:
 3. Not idempotent	Retrying the same increment may double-count!
 
 It is also not preferred approach for this system.
+
+Example scenario:
+You have a post with post_id=1 and like_count=100.
+
+You DELETE the row because you removed the post.
+
+Node B didn’t receive the delete yet and still has +100 locally.
+
+Later, you run a repair or nodes reconcile during read repairs → Node B sends its +100 increments.
+
+Now, your deleted post shows like_count=100 again, even though you explicitly deleted it.
+
+Why can’t Cassandra avoid this?
+Counters are append-only under the hood: they don’t store the absolute value but the deltas (increments/decrements).
+
+There’s no absolute “final value” to overwrite like normal columns — so when nodes sync, old increments can be added again.
