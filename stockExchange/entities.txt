@@ -2,7 +2,7 @@ Matching engine:
 Matching cngine is also called the cross engine. Here are the primary responsibilities
 of the matching engine:
 1. Maintain the order book for each symbol. An order book is a list of buy and sell orders for a symbol. We explain lhe construction ofan order book in the Data models section later.
-2. Match buy and sell orders. A match results in two executions (one from the buy side and the other from the sell side). 111e matching function must be fast and accurate.
+2. Match buy and sell orders. A match results in two executions (one from the buy side and the other from the sell side). matching function must be fast and accurate.
 3. Distribute the execution stream as market data.
 
 

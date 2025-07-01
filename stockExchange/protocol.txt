@@ -1,0 +1,72 @@
+Distribution fairness of market data
+In stock trading, having lower latency than others is like having an oracle that can see the future. For a regulated exchange, 
+it is important to guarantee that all the receivers of market data get that data at the same time.
+
+Multicast — One-to-Many Communication (selective group)
+➤ What is it?
+Data is sent from one sender to multiple specific receivers, who have joined a “multicast group”.
+
+The group can span multiple subnets (even globally).
+
+➤ Real-world analogy:
+Like a TV channel broadcast — only those who tune in receive it.
+
+➤ Example in stock trading:
+Exchange sends market data via multicast — brokers who subscribe to the group receive the data simultaneously, no matter where they are.
+
+ Pros:
+Efficient: Sender sends one copy → network replicates it.
+
+Scalable to thousands of receivers.
+
+Ensures fair delivery in real time.
+
+➤ Cons:
+Requires network support (e.g., IGMP, PIM).
+
+More complex to set up.
+
+Reliability must be handled manually (e.g., using sequence numbers & retransmission logic).
+
+
+Here’s what actually happens:
+When a source sends a multicast packet, it transmits just once → switches/routers replicate that packet to all subscribed receivers.
+
+Theoretically, receivers get the packet simultaneously, because the same packet traverses the network tree to reach everyone.
+
+How do exchanges ensure order & reliability using multicast UDP?
+They implement a reliable multicast protocol on top of UDP — here’s how it works:
+
+1️⃣ Sequence numbers
+Every market data message includes a monotonically increasing sequence number (e.g., 1, 2, 3…).
+
+The broker keeps track of the last received sequence number.
+
+If it receives 1, 2, then 4 → it knows 3 is missing.
+
+2️⃣ Replay/retransmission mechanism
+When a broker detects a gap (missing sequence), it:
+
+Sends a request (usually over TCP or a separate unicast UDP channel) to the exchange’s Replay Server or Retransmission Service.
+
+The exchange resends just the missing packets.
+
+
+Why can’t TCP be used for multicast?
+TCP (Transmission Control Protocol) is designed to be:
+
+Connection-oriented: it requires a one-to-one, full-duplex connection between a single sender and a single receiver.
+
+Reliable: it ensures in-order delivery, retransmissions, flow control, etc.
+
+Stateful: both sender and receiver maintain connection state, sequence numbers, ACKs, etc.
+
+UDP is used for multicast because:
+It's connectionless.
+
+You can send a single packet to a multicast IP address (e.g., 239.1.1.1) and the network handles replication to all subscribed clients.
+
+It's extremely fast and scalable.
+
+Its unreliability is mitigated via custom logic (e.g., sequence numbers, retransmissions).
+
