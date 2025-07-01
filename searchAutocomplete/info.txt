@@ -1,3 +1,22 @@
-1. when typing in the text box quickly load the top suggestions for word/terms based off input text
-2. suggestions may be either for individual words or full search terms
-3. top items list should be updated at least once per day
+1. when typing in the text box quickly load the top suggestions for word/terms based off input text.
+2. suggestions may be either for individual words or full search terms.
+3. top terms list should be updated at least once per day.
+
+
+
+we can use tries for solving this optimally, it takes o(1) for reads since we just have to
+go down in children node
+in tries we store top k suggestions at each node 
+
+• Users may enter billions of queries per day. Updating the trie on every query significantly slows down the query service.
+• Top suggestions may not change much once the trie is built. Thus, it is unnecessary to update the trie frequently.
+
+we can store trie in 2 ways:
+1. document store: take snapshot, serialize it and store it
+2. key value store: 
+• Every prefix in the trie is mapped to a key in a hash table.
+• Data on each trie node is mapped to a value in a hash table.
+
+we can add a filter layer between api servers and trie cache to filter out abusive content.
+
+we can shard the data based on keys and to prevent hot partitioning, we can use historical patterns to make sure that shards are evenly distributed
