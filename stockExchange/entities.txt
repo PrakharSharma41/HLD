@@ -1,0 +1,36 @@
+Matching engine:
+Matching cngine is also called the cross engine. Here are the primary responsibilities
+of the matching engine:
+1. Maintain the order book for each symbol. An order book is a list of buy and sell orders for a symbol. We explain lhe construction ofan order book in the Data models section later.
+2. Match buy and sell orders. A match results in two executions (one from the buy side and the other from the sell side). 111e matching function must be fast and accurate.
+3. Distribute the execution stream as market data.
+
+
+
+Sequencer:
+1. The sequencer is the key component that makes the matching engine deterministic. 
+2. It stamps every incoming order with a sequence ID before it is processed by the match- ing engine. 
+
+
+Market Data Flow:
+1. The market data publisher (MDP) receives executions from the matching engine and builds the order books and candlestick charts from the stream of executions. 
+2. The order books and candlestick charts, which we discuss in the Data Models section later, are collectively called market data 
+
+Reporting Flow:
+An incoming new order contains order details, and outgoing execution usually only contains order ID, price, quantity, and execution status. 
+The reporter merges theattributes from both sources for the reports.
+
+Client gateway:
+1. The gatekeeper for the exchange.
+2. Receives orders placed by clients and routes them to the order manager.
+Functions:
+    Authentication
+    Validation
+    Rate limiting
+    Normalization
+    FIXT support
+
+
+The order manager, matching engine, and market data publisher each have their own application loop, each pinned to a dedicated CPU core.
+
+They communicate via mmap — so when one component updates shared memory, others see the change instantly without going through the network or OS IPC mechanisms.    

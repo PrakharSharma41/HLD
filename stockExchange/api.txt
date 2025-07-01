@@ -1,0 +1,32 @@
+1. order
+POST /v1/order
+This endpoint places an order. It requires authentication.
+
+Parameters
+symbol: the stock symbol. ~tnng
+side:buyorsell. ~Inng
+price: the price of the limit order. Long
+orderType: limit or market (note we only support limit orders in our design). String quantity: the quantity of the order. I ong
+
+Response Body:
+id: the ID of the order. Long
+creationTime: the system creation time of the order. Long filledQuantity: the quantity that has been successfully executed. Long
+remainingQuantity: the quantity still to be executed. Long status: new/canceled/filled. St1ing
+rest of the attributes are the same as the input parameters
+
+
+2. Execution
+GET /v1/execution?symbol={:symbol }&orderld={:orderld}&startTime={:startTime}& e n d T i m e = { : e n d T i me }
+This endpoint queries execution info. It requires authentication. 
+
+Parameters
+symbol: the stock symbol. String
+orderId: the ID of the order. Optional. String startTime: query start time in epoch [11]. Long endTime: query end time in epoch. Long
+
+Response Body:
+execution array with each execution in scope
+id: id of execution
+orderid: the ID of the order
+symbol: stock symbol
+price: price of stock
+orderType: buy /sell

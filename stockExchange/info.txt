@@ -1,0 +1,46 @@
+Functional Requirements:
+1. Buy and sell stock at low latency according to limit order book
+2. Cancel open orders and get volume of open orders at limit price
+3. watchlists, client watching some stocks 
+4. search for any stocks
+5. marketdepth for each stock
+
+Non Functional Requirements:
+1. Availability
+2. Fault tolerance
+3. latency
+4. Security(kyc verification)
+
+Capacity Estimates:
+5000 stocks
+1 billion orders per day
+stock exchange is open for approx 6 hrs
+qps= 1B /(6.5 x 3,600) = 43,000
+• Peak QPS: 5 x QPS = 215,000. 
+
+API:
+POST /create order
+POST / cancel order
+GET / list order
+
+we will have a order book for both sell and buy for each stock 
+
+
+How do they ensure fault tolerance then?
+Even if the critical path is on a single server:
+
+Active-standby or active-active servers: A second identical server runs in parallel or stands by to take over instantly if the primary fails.
+
+State replication: Key state (order book, sequence numbers) is synchronized to backups so failover can happen with minimal disruption.
+
+Heartbeat and health checks: Monitoring systems detect failure and trigger switchover automatically.
+
+Multiple critical path replicas: Exchanges sometimes shard instruments across several single-server setups (e.g., one server for A–M symbols, another for N–Z),
+ limiting the blast radius of a single server failure.    
+
+Data persistence:
+Persistent Event Log (Sequencer or Journal)
+
+Every time an order or execution is created or updated in memory, it’s simultaneously written to a sequential log file on disk — called a sequencer, journal, or write-ahead log.
+
+Because sequential writes to disk (append-only) are very fast (tens of microseconds), you get persistence without the latency of a full database commit.
