@@ -1,0 +1,19 @@
+1. POST /v1/payments
+This endpoint executes a payment event.
+params:{
+    buyer_info: json,
+    checkout_id: string,
+    payment_orders: list of payment orders
+}
+
+payment order:
+{
+    payment_order_id: string,
+    currency: string,
+    amount: string,
+    seller_account: string
+}
+
+2. GET /v1/payments/{:id}
+This endpoint returns the execution status of a single payment order based on payment_order_id.
+

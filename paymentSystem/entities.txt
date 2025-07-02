@@ -1,0 +1,18 @@
+Payment service:
+1. The payment service accepts payment events from users and coordinates the payment process.
+2. The first thing it usually does is a risk check, assessing for compliance with regulations.
+
+Payment executor:
+The payment executor executes a single paymenl order via a Payment Service Provider(PSP).
+
+Ledger:
+The ledger keeps record of financial transaction. For example when user pays 1$, we record it as credit for one
+user and debit for another user.
+
+Wallet:
+The wallet keeps the account balance of the merchant. It may also record how much a given user has paid in total.
+The wallet server stores the updated balance information in the database.
+
+Double-entry ledger system:
+1. It records every payment transaction into lwo separate ledger accounts with the same amount.
+2. The double-entry system stales that the sum of all the transaction entries must be 0.

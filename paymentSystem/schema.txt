@@ -1,0 +1,18 @@
+DATABASE:
+prefer sql database for reliability, performance is not the most important factor
+on replicating data across multiple dbs, use quorum consensus to enforce that how many nodes we want to be updated when write happens
+
+payment order table: 
+The payment order table stores the execution status ofeach payment order.
+payment_order_id, buyer_account, payment_order_status, ledger_updated(boolean),wallet_updated(boolean)
+
+payment event table:
+The payment event table contains detailed payment event information.
+checkout_id, buyer_info,seller_info, is_payment_done
+
+
+user:
+user_name, user_id, email
+
+once payment_order_status is true, payment service calls wallet service to update that wallet and wallet_updated is set to true
+it then calls ledger service to update the ledger_updated to true

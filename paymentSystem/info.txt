@@ -9,6 +9,7 @@ fault tolerance
 reconcilitaion is required to make sure payment is consistent across system
 idempotency
 retry handle
+delayed payments(handled by psp sending pending status to our payment service)
 
 can we use psp here instead of directly making payment ourself(requires lots of safety checks)
 ESTIMATION:
@@ -17,15 +18,6 @@ approx 10 transactions per second
 
 Ledger is used to maintain consistency
 
-DATABASE:
-prefer sql database for reliability, performance is not the most important factor
-on replicating data across multiple dbs, use quorum consensus to enforce that how many nodes we want to be updated when write happens
-
-payment order table:
-payment_order_id, buyer_account, payment_order_status, ledger_updated,wallet_updated
-
-user:
-user_name, user_id, email
 
 NOTE:
 PSP updates the payment status using a webhook connection
@@ -38,7 +30,7 @@ when user tries to do failed payment again and again, we can decide intervals be
 • Immediate retry: client immediately resends a request.
 • Fixed intervals: wait a fixed amow1t of time between the time of the failed payment and a new retry attempt.
 
-Reliability:
+Idempotency/Reliability:
 •Scenario1: The payment system integrates with PSP using a hosted payment page and client clicks pay button twice
 •Scenarlo 2: The payment is successfulJy processed by the PSP, but the response fails to reach our payment system due to network errors. 
 The user clicks the "pay" button again or the client retries the payment.
