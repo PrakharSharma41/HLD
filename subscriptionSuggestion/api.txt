@@ -1,0 +1,39 @@
+1. POST /subscriptions/suggest
+Calculates and returns a suggested subscription tier based on the current cart amount and items.
+POST /subscriptions/suggest
+{
+  "cartId": "CART-12345",
+  "cartTotal": 5200.00,
+  "cartItems": [
+    { "sku": "SKU-1", "price": 3200.00, "quantity": 1 },
+    { "sku": "SKU-2", "price": 2000.00, "quantity": 1 }
+  ]
+}
+
+2. POST /subscriptions/activate
+Activates a subscription for a user after successful payment.
+{
+  "userId": 123,
+  "tierId": 2,
+  "orderId": "ORDER-789",
+  "startDate": "2025-07-02",
+  "endDate": "2026-07-01"
+}
+
+3. POST /subscriptions/cancel
+Cancels a user’s active subscription.
+{
+  "userId": 123,
+  "reason": "User requested cancellation"
+}
+
+4. GET /subscriptions/{userId}
+Retrieves the active subscription for a given user.
+{
+  "subscriptionId": 456,
+  "tier": "Gold",
+  "startDate": "2025-07-02",
+  "endDate": "2026-07-01",
+  "status": "ACTIVE",
+  "autoRenewal": false
+}

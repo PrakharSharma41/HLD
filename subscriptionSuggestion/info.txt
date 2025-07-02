@@ -1,0 +1,32 @@
+Functional Requirements:
+1. Dynamic Suggestion:
+    1.1 Based on cart total, suggest a subscription tier (e.g., silver, gold, platinum).
+    1.2 Update suggestion dynamically as the cart content changes (add/remove items, quantity changes).
+
+2. Cart Integration:
+    2.1 Subscription appears as a cart item (SKU-like) but unselected by default.
+    2.2 User can manually select/deselect subscription.
+
+3. Amount Calculation:
+    3.1 Cart total should reflect the subscription price when selected and exclude it when deselected.
+
+4. Subscription Lifecycle:
+    4.1 Orchestration of subscription purchase (activation, expiry).
+    4.2 Management (renewal, upgrade/downgrade, cancellation).
+
+Non Functional Requirements:
+1. Performance: Cart updates and suggestion recalculations must be near real-time (< 300ms).
+2. Scalability: Suggestion Service should handle thousands of concurrent carts.
+3. Auditability: All subscription lifecycle events must be logged for compliance.
+
+
+
+we can use message broker like kafka to publish event that subscription suggestion service can consume
+and get subscriptions and send it back to cart service.
+
+
+subscription suggestion and management service can be combined in basic high level design
+
+
+payment service can send message to topic that can be consumed by management service anc create entry in user
+subscription table

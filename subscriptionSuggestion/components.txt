@@ -1,0 +1,22 @@
+Subscription Suggestion Service:
+1. Receives cart amount updates (via events or API calls).
+2. Uses thresholds/tiers config:
+e.g. cart total < ₹1000 → no suggestion;
+₹1000–₹3000 → suggest Silver;
+₹3000–₹7000 → suggest Gold;
+₹7000 → suggest Platinum.
+Returns subscription suggestion metadata to Cart Service/UI.
+
+Cart Service:
+1. Maintains current cart state.
+2. Adds subscription as a special cart item when suggestion is active.
+3. Adjusts total dynamically when user selects/deselects the subscription.
+
+Subscription Management Service:
+1. Manages subscription lifecycle (activation, renewals, upgrades, downgrades, cancellations).
+2. Tracks subscriptions in the user profile.
+3. Exposes APIs for:
+    3.1 ActivateSubscription
+    3.2 CancelSubscription
+    3.3 Upgrade/DowngradeSubscription
+    3.4 GetActiveSubscription
