@@ -31,21 +31,17 @@ Update task status (Scheduled, Completed, Failed)
 
 
 
-
-
-SQL is usually the better fit for these reasons:
-1. Strong Consistency & Transactions: Scheduling often requires atomic operations, like: "Mark job as running" and "lock it" for one worker.
-2. Structured Schema Jobs typically have a predictable structure:
-3. Reliable Querying You often need queries like: select * based on status 
-4. indexing is easier to query
+nosql(cassandra) over sql:
+1. we don’t have complex transactional operations, therefore we are not tightly coupled to use a relational database.
+2. average load is 37k tasks per minute, we need high scalability, need to efficiently retreive tasks
+3. use cassandra since it scales well horizontally
 
 
 DATABASE:
 
 Job table:
 user_id, job_id,is_recurring,interval,max_retry_count,created_time
-index based on created_time
-job_id is pk
+user_id as partition key and created_time as sort key
 
 Task_schedule: shard this table as well
 
@@ -63,7 +59,7 @@ sort key is job_id
 Task_execution_history:
 job_id, execution_time,status,retry_count,last_update_time
 partition key is job_id
-
+sort key is job_id
 
 
 job_service:
