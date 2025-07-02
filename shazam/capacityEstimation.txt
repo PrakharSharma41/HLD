@@ -1,0 +1,9 @@
+Assume that there are around 100 millions songs
+Assume that the size per file is around 5MB.
+Assume that the song metadata size is around 1KB.
+Note: There is no need to store the songs as it could lead to additional storage as well as compliance concerns regarding the rights of the songs. Regarding the storage of the metadata, it will require around 100GB (1KB * 1000 million songs) of storage.
+
+Assume that a 3 minutes song is divided into 3000 segments of 64 bits each.
+This implies that we would require 24KB storage per song in turn would lead to 3TB storage requirements.
+
+Throughput: 100 million daily users with 3 songs search -> 300 million read requests / day -> 3000TPS

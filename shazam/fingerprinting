@@ -1,0 +1,29 @@
+audio can be represented as a spectogram(3d graph) time,frequency, amplitude
+How does Shazam’s fingerprinting work (conceptually)?
+Shazam uses a technique called landmark-based fingerprinting. Here’s the simplified process:
+
+1️⃣ Spectrogram generation
+
+Convert the audio snippet into a spectrogram (a 2D plot of frequency vs. time, where intensity shows amplitude).
+
+2️⃣ Peak detection
+
+Identify spectral peaks: points in the spectrogram where the frequency energy is strongest.
+
+3️⃣ Landmark pairs
+
+Form pairs of nearby peaks (anchor + target) with relative time and frequency differences.
+
+Each pair becomes a hash, like:
+
+ini
+Copy
+Edit
+fingerprint = hash(frequency_anchor, frequency_target, time_difference)
+This creates a set of fingerprints from a short recording.
+
+4️⃣ Matching
+
+These fingerprints are matched against fingerprints in the database.
+
+If enough hashes from your recording match the same song, Shazam identifies it.

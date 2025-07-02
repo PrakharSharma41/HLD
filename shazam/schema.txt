@@ -1,0 +1,23 @@
+for songs metadata table:
+id:
+name:
+audioUrl:
+can use both relational and non relational songDB
+
+songs fingerprint db: (its 3 tb data for scalability concerns use nosql)
+key=songId:
+value=List of fingerprints
+can use key value or document db(list of fingerprints become huge we can store it as documents)
+
+songs fingerprint index db: we can store this in memory using redis as well
+use nosql here 
+key=fingerprint value=List of song ids
+
+sharding is required
+Partition fingerprint data by song ID hash range to distribute load.
+
+How matching works with this structure:
+1️⃣ For every fingerprint in the user’s audio clip, do a lookup by hash key → get candidate song IDs.
+2️⃣ Keep a count of how many fingerprints match each song.
+3️⃣ The song with the highest number of consistent matches (with aligned time offsets) is considered the best match.
+

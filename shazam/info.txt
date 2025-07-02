@@ -1,0 +1,31 @@
+Functional Requirements:
+1. User should be able to record an audio and the system should identify return the song from the audio.
+
+Non Functional Requirements:
+1. highly available
+2. low latency
+3. must handle a large and potentially unpredictable number of requests from users around the world
+4.  system should handle and recover from various kinds of failures, such as incorrect song samples, noisy environments, or partial system outages, without crashing or losing functionality.
+
+api design:
+GET /getSong(songRecording)
+
+database:
+some index that takes client sides audio and tells song id
+songSearchIndex(songDataChunk,songId)
+songDB(songId,songDataChunks)
+
+What is an audio fingerprint?
+An audio fingerprint is a compact, unique digital summary of an audio signal — like a “barcode” for a song.
+It encodes key features of the audio in a way that allows fast matching against a database of known songs, even if the recorded audio is noisy, compressed, or only a short snippet.
+Shazam uses a technique called landmark-based fingerprinting.
+
+
+How matching works?
+1. These fingerprints are matched against fingerprints in the database.
+2. If enough hashes from your recording match the same song, Shazam identifies it.
+
+If you record 5 seconds of a song:
+Your phone generates ~1000–3000 fingerprints.
+Each fingerprint is ~10 bytes → total ~10–30 KB of data.
+This tiny data can quickly be matched against a database of millions of songs.
