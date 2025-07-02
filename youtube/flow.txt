@@ -62,3 +62,13 @@ The Master Playlist URL is a manifest file (typically with a .m3u8 extension for
 
 if a video is replicated at multiple cdns, in the file_path in videos table, we can store a logical url that points to a 
 backend and in that backend we can store all cdn urls for that video
+
+For video/audio delivery to end-users, modern streaming platforms (e.g., YouTube, Netflix, Twitch) typically use HTTP-based adaptive streaming protocols, the most common are:
+
+HLS (HTTP Live Streaming) — Apple’s protocol, widely used, works over standard HTTP(S).
+
+DASH (Dynamic Adaptive Streaming over HTTP) — an open standard similar to HLS, also runs over HTTP(S).
+
+These protocols chunk video into small files (segments), allowing the client to request different quality levels based on current bandwidth.
+
+Since HLS and DASH use plain HTTP/TCP, they work reliably over existing CDNs, firewalls, and mobile networks.
