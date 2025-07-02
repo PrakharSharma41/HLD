@@ -1,0 +1,51 @@
+1. Search Flights API
+GET /api/v1/flights/search?origin=BOM&destination=JFK&departure_date=2025-07-15&stops=1&sort=PRICE_ASC&cabin_class=ECONOMY
+response: "results": [
+    {
+      "type": "direct",
+      "flight": {
+        "flight_id": "uuid",
+        "flight_number": "AI101",
+        "airline": "Air India",
+        "origin": "BOM",
+        "destination": "JFK",
+        "departure_time": "2025-07-15T01:00",
+        "arrival_time": "2025-07-15T11:00",
+        "fare": 780.0,
+        "duration_minutes": 900
+      }
+    },
+  ]
+
+2. Create Booking API
+POST /api/v1/bookings
+request body: {
+  "flight_option_id": "uuid",          // reference from search result
+  "passengers": [
+    {
+      "first_name": "John",
+      "last_name": "Doe",
+      "dob": "1985-04-15",
+      "passport_number": "A12345678",
+      "nationality": "IN"
+    }
+  ],
+  "contact": {
+    "email": "john.doe@example.com",
+    "phone": "+911234567890"
+  },
+  "payment_method": {
+    "type": "CREDIT_CARD",
+    "card_number": "4111111111111111",
+    "expiry": "12/27",
+    "cvv": "123"
+  }
+}
+
+
+3. Booking Status API
+GET /api/v1/bookings/{booking_id}/status
+
+
+4. Cancel Booking API
+POST /api/v1/bookings/{booking_id}/cancel

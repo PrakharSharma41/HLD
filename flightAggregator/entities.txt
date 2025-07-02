@@ -1,0 +1,38 @@
+1. Airline Adapter Service(s):
+    Integrate with each airline’s API (REST, SOAP, or even file feeds).
+    Fetch availability, schedules, and fares.
+    Normalize and push data to our system.
+    Handle airline-specific authentication, rate limiting, retries.
+
+2. Flight Data Aggregator Service
+    Central orchestrator of fetching/syncing flight data from multiple airlines.
+    Schedule regular pulls, or receive push updates from airlines (depends on their API).
+    Store normalized flight schedules and pricing into the database.
+
+3. Flight Search Service
+    Exposes APIs for users to search for flights.
+    Handles direct & connecting flights computation.
+    Reads from a Flight Search Database/Index optimized for low-latency queries.
+    Includes caching layer (Redis/Memcached) for frequently searched routes.
+
+4. Booking Service
+    Manages booking lifecycle: initiating booking, confirming seat with airline, issuing ticket.
+    Persists booking transactions.
+    Calls airline APIs for booking confirmation.
+    Handles payments.
+    Implements idempotency to avoid duplicate bookings.
+
+5. Payment Service
+    Orchestrates payments, refunds, and reconciliation with airlines.
+
+6. Notification Service
+    Sends confirmation emails/SMS/push notifications.
+
+7. User Service
+    Manages user profiles, preferences, history.
+
+8. API Gateway
+    Unified entry point for client/mobile apps.
+    Rate-limits, logs, routes requests to internal services.
+
+

@@ -1,0 +1,107 @@
+1. flights
+Stores individual flight legs (direct flights):
+flights (
+  flight_id         UUID PRIMARY KEY,
+  airline_code      VARCHAR,
+  flight_number     VARCHAR,
+  origin_airport    VARCHAR,      -- IATA code (e.g., BOM)
+  destination_airport VARCHAR,
+  departure_time    TIMESTAMP,
+  arrival_time      TIMESTAMP,
+  fare_class        VARCHAR,      -- e.g., Economy, Business
+  fare_amount       DECIMAL,
+  currency          VARCHAR(3),
+  seats_available   INTEGER,
+  status            ENUM('SCHEDULED', 'CANCELLED', 'DELAYED'),
+  last_updated      TIMESTAMP
+)
+Proper indexes on (origin, departure_date, departure_time) and (destination, departure_date, departure_time) speed up lookups.
+
+2. airlines
+Metadata about airlines you integrate with:
+airlines (
+  airline_code      VARCHAR PRIMARY KEY,  -- IATA code, e.g., 'AI' for Air India
+  name              VARCHAR,
+  contact_info      JSONB,
+  supports_booking  BOOLEAN,
+  last_polled_at    TIMESTAMP,
+  api_endpoint      VARCHAR
+)
+
+3. bookings
+Each confirmed or attempted booking is recorded here:
+bookings (
+  booking_id        UUID PRIMARY KEY,
+  user_id           UUID REFERENCES users(user_id),
+  total_amount      DECIMAL,
+  currency          VARCHAR(3),
+  status            ENUM('INITIATED', 'PAYMENT_SUCCESS', 'CONFIRMED', 'CANCELLED', 'FAILED'),
+  pnr               VARCHAR,           -- airline-issued booking reference
+  payment_id        UUID REFERENCES payments(payment_id),
+  created_at        TIMESTAMP,
+  updated_at        TIMESTAMP
+)
+
+
+4. booking_flights
+Many-to-many relationship between bookings and flights (since one booking can include multiple legs):
+booking_flights (
+  booking_id        UUID REFERENCES bookings(booking_id),
+  flight_id         UUID REFERENCES flights(flight_id),
+  leg_order         INTEGER,          -- e.g., 1 for first leg in connecting flights
+  PRIMARY KEY (booking_id, leg_order)
+)
+
+
+5. users
+Registered users of the aggregator:
+users (
+  user_id           UUID PRIMARY KEY,
+  name              VARCHAR,
+  email             VARCHAR UNIQUE,
+  phone_number      VARCHAR UNIQUE,
+  password_hash     VARCHAR,
+  created_at        TIMESTAMP
+)
+
+6. payments
+Handles payments and refunds for bookings:
+payments (
+  payment_id        UUID PRIMARY KEY,
+  booking_id        UUID REFERENCES bookings(booking_id),
+  amount            DECIMAL,
+  currency          VARCHAR(3),
+  status            ENUM('INITIATED', 'SUCCESS', 'FAILED', 'REFUNDED'),
+  payment_method    VARCHAR,          -- e.g., 'CreditCard', 'UPI'
+  gateway_reference VARCHAR,          -- transaction ID from payment gateway
+  created_at        TIMESTAMP,
+  updated_at        TIMESTAMP
+)
+
+7. connecting_flights
+connecting_flights (
+  connection_id         UUID PRIMARY KEY,
+  origin_airport        VARCHAR,        -- IATA code, e.g., BOM
+  destination_airport   VARCHAR,        -- e.g., JFK
+  intermediate_airport  VARCHAR,        -- e.g., DXB
+
+  first_flight_id       UUID REFERENCES flights(flight_id),
+  second_flight_id      UUID REFERENCES flights(flight_id),
+
+  departure_time_origin TIMESTAMP,      -- departure from origin
+  arrival_time_intermediate TIMESTAMP,  -- arrival at intermediate airport
+  departure_time_intermediate TIMESTAMP,-- departure from intermediate
+  arrival_time_destination TIMESTAMP,   -- arrival at destination
+
+  total_duration        INTERVAL,
+  layover_duration      INTERVAL,
+
+  combined_fare_amount  DECIMAL,
+  currency              VARCHAR(3),
+
+  fare_class            VARCHAR,        -- e.g., Economy, Business
+  seats_available       INTEGER,        -- min of both legs' availability
+
+  status                ENUM('SCHEDULED', 'CANCELLED'),
+  last_updated          TIMESTAMP
+)

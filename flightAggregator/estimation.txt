@@ -1,0 +1,19 @@
+You expect ~1 million DAUs globally.
+
+Search data size
+    1000 airlines globally.
+    Each airline has ~5000 daily flights → ~5 million flights/day worldwide.
+    Storing ~2 weeks of schedules (to allow forward bookings) → 5 million × 14 = 70 million flight records.
+    Average flight record ~500 bytes → 70 million × 0.5 KB ≈ 35 GB for flight search data in ElasticSearch.
+    Replication (ES best practice: 3 copies) → total ~105 GB of indexed storage.
+
+🔹 Searches per user
+Average user makes ~10 searches/session → 10 million searches/day.
+
+🔹 Bookings
+At 100:1 ratio → 10 million searches → ~100k bookings/day.
+
+🔹 Peak concurrency
+If 20% of traffic occurs in a 2-hour peak window → ~2 million searches in 2 hours → ~280 searches/second during peak.
+
+To be safe, plan for 3x burst capacity → 1000 searches/sec.

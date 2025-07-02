@@ -1,0 +1,7 @@
+User → API Gateway
+         │
+         ├── Flight Search Service ←→ Flight Search DB/ElasticSearch ← Flight Data Aggregator ← Airline Adapter Services ← Airlines
+         │
+         └── Booking Service ←→ Booking DB + Payment Service ←→ Payment Gateway
+                               ↓
+                        Airline Adapter (Booking confirmation)

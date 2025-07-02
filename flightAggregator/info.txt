@@ -1,0 +1,60 @@
+Functional Requirements:
+1. Aggregator will get data from different airlines.
+2. user will be able to search and book flight from aggregator
+3. shows both direct and connecting flight
+
+Non Functional Requirements:
+1. consistent(no booking for cancelled flight)
+2. fault tolerant
+3. low latency
+4. scalable(especially flight search)
+
+
+Why not store connecting flights?
+Connecting flights are not stored as separate records, 
+but computed on the fly from combinations of rows in the flights table (based on time & layover constraints).
+
+What happens if an airline cancels a flight?
+    1. Webhooks/feeds: some airlines push updates to registered partners in near real-time.
+    2. Polling: if airline doesn’t push changes, your Airline Adapter periodically polls the schedule; on each poll, 
+    it detects missing/cancelled flights by comparing last known schedule.
+
+Updates the Flight Schedule Database: set flight status to CANCELLED.
+Update search index so canceled flights won’t appear in future search results.
+For active bookings on canceled flights: trigger booking service for that flight_id and initiate refunds
+
+
+Searches use an indexed copy of flight data (ElasticSearch) for speed, but that index is built from the flights table.
+
+
+Flight Data Fetching and Storage:
+
+1. Fetching flight data
+    Periodic polling or webhook-based updates from airline APIs.
+    Airline Adapter Services transform airline-specific responses into a common flight data schema (flight number, origin, destination, departure, arrival, seat classes, fare rules).
+
+2. Storage
+    Flight Schedule Database (SQL/NoSQL like PostgreSQL, Aurora, or MongoDB) – stores normalized schedule + fares.
+    Flight Index/Cache – ElasticSearch or specialized search DB for fast route+date-based searches, including multi-leg combinations.
+
+3. Handling connecting flights
+    On data ingestion, we store direct flights separately.
+    When a user searches, if no direct flights found, Flight Search Service builds connections by combining flights within a minimum/maximum layover window (e.g., 1-5 hours).
+
+
+Search API scalability
+    Flight search APIs face massive read traffic vs low writes.
+    ElasticSearch (or Solr) for distributed, low-latency, full-text & geo queries.
+    CDN + edge caching of popular search results (e.g., BOM-DEL on holiday weekends).
+    Implement search result caching in Redis with short TTL (e.g., 5 minutes) since fares/schedules can change frequently.
+    Auto-scale Flight Search Service pods behind load balancers.
+    Use pagination and rate limiting to avoid abuse.
+    elastic search can have multiple inverted index fields from flights table
+
+
+Scale connecting flights
+1. Precompute only direct and single-layover itineraries (0 or 1 layover).
+2. For rare cases where 2 layovers might be needed, compute on demand at search time for that specific query → but heavily limit search to avoid explosion:
+Restrict to well-known hubs.
+Limit total itinerary duration (e.g., ≤36 hours).
+Only combine flights of same alliance or codeshare partners.
