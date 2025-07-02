@@ -1,0 +1,97 @@
+1. Users Table:
+Tracks both sellers and bidders, enforcing mutually exclusive roles.
+| Column          | Type                     | Description           |
+| --------------- | ------------------------ | --------------------- |
+| `user_id`       | UUID / BIGINT            | Primary key           |
+| `name`          | VARCHAR                  | User’s name           |
+| `email`         | VARCHAR                  | Unique user email     |
+| `phone`         | VARCHAR                  | For SMS notifications |
+| `role`          | ENUM('SELLER', 'BIDDER') | Cannot be both        |
+| `password_hash` | VARCHAR                  | Hashed password       |
+| `created_at`    | TIMESTAMP                | Registration time     |
+
+
+2. Products Table:
+Stores products listed by sellers for auction.
+| Column          | Type                                 | Description                        |
+| --------------- | ------------------------------------ | ---------------------------------- |
+| `product_id`    | UUID / BIGINT                        | Primary key                        |
+| `seller_id`     | UUID / BIGINT                        | Foreign key → Users                |
+| `title`         | VARCHAR                              | Product title                      |
+| `description`   | TEXT                                 | Product description                |
+| `start_price`   | DECIMAL                              | Starting price of the auction      |
+| `auction_start` | TIMESTAMP                            | When the auction starts            |
+| `auction_end`   | TIMESTAMP                            | When the auction ends              |
+| `status`        | ENUM('SCHEDULED', 'ACTIVE', 'ENDED') | Auction status                     |
+| `winner_bid_id` | UUID / BIGINT                        | FK → Bids; null until auction ends |
+| `created_at`    | TIMESTAMP                            | When the product was listed        |
+
+
+3. Bids Table:
+Records every bid placed on products.
+| Column       | Type          | Description                              |
+| ------------ | ------------- | ---------------------------------------- |
+| `bid_id`     | UUID / BIGINT | Primary key                              |
+| `product_id` | UUID / BIGINT | Foreign key → Products                   |
+| `bidder_id`  | UUID / BIGINT | Foreign key → Users                      |
+| `bid_amount` | DECIMAL       | Bid amount                               |
+| `bid_time`   | TIMESTAMP     | When bid was placed                      |
+| `is_highest` | BOOLEAN       | True if this was the highest at bid time |
+
+
+4. Search Index (ElasticSearch)
+Store a denormalized document per active product, including:
+product_id
+title
+description
+current_highest_bid (updated after each accepted bid)
+auction_start / auction_end
+status
+
+
+if auction contains multiple products:
+
+Auctions Table:
+| Column         | Type                                 | Description                    |
+| -------------- | ------------------------------------ | ------------------------------ |
+| auction\_id    | UUID/BIGINT                          | Primary key                    |
+| seller\_id     | UUID/BIGINT                          | FK → Users (must be a seller)  |
+| auction\_title | VARCHAR                              | Title of the auction session   |
+| auction\_start | TIMESTAMP                            | When the auction event starts  |
+| auction\_end   | TIMESTAMP                            | When the auction event ends    |
+| status         | ENUM('SCHEDULED', 'ACTIVE', 'ENDED') | Auction status                 |
+| created\_at    | TIMESTAMP                            | When auction event was created |
+
+
+Products Table:
+| Column      | Type        | Description               |
+| ----------- | ----------- | ------------------------- |
+| product\_id | UUID/BIGINT | Primary key               |
+| seller\_id  | UUID/BIGINT | FK → Users                |
+| title       | VARCHAR     | Product title             |
+| description | TEXT        | Product description       |
+| base\_price | DECIMAL     | Starting price suggestion |
+| created\_at | TIMESTAMP   | When product was added    |
+
+
+AuctionProducts Table:
+| Column                | Type                             | Description                        |
+| --------------------- | -------------------------------- | ---------------------------------- |
+| auction\_product\_id  | UUID/BIGINT                      | Primary key                        |
+| auction\_id           | UUID/BIGINT                      | FK → Auctions                      |
+| product\_id           | UUID/BIGINT                      | FK → Products                      |
+| start\_price          | DECIMAL                          | Starting price in this auction     |
+| current\_highest\_bid | DECIMAL                          | Updated with each accepted bid     |
+| winner\_bid\_id       | UUID/BIGINT                      | FK → Bids; NULL until auction ends |
+| status                | ENUM('ACTIVE', 'SOLD', 'UNSOLD') | Product status in this auction     |
+
+
+Bids Table:
+| Column               | Type        | Description                      |
+| -------------------- | ----------- | -------------------------------- |
+| bid\_id              | UUID/BIGINT | Primary key                      |
+| auction\_product\_id | UUID/BIGINT | FK → AuctionProducts             |
+| bidder\_id           | UUID/BIGINT | FK → Users                       |
+| bid\_amount          | DECIMAL     | Amount of bid                    |
+| bid\_time            | TIMESTAMP   | When the bid was placed          |
+| is\_highest          | BOOLEAN     | True if this was highest at time |

@@ -42,6 +42,7 @@ Scenario2: The nonce uniquely represents the payment order, and the token unique
 When a payment event is triggered, that event can be pushed to a queue like kafka, then it can be consumed by 
 services like payment service,analytics service etc
 
+
 Failed payments are pushed to dead letter queue
 
 To prevent Man in middle attack, we use ssl certification

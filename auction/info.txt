@@ -1,0 +1,33 @@
+Functional Requirements:
+
+1. Sellers can:
+    1.1 Register/login (but not be bidders).
+    1.2 List products for auction.
+    1.3 View their own listings.
+2. Bidders can:
+    2.1 Register/login (but not be sellers).
+    2.2 Search products (via ElasticSearch).
+    2.3 Place bids (with concurrency + consistency).
+
+3. Auctions must:
+    3.1 Determine a clear winner (strong consistency on final bid).
+    3.2 Notify seller & winning bidder via SMS when auction ends.
+
+Non Functional Requirements:
+1. Scalability: Horizontally scale API, bidding, and search services independently.
+2. Fault Tolerance: Use message queues for retries of notifications and bid indexing.
+3. Security: JWT for auth.
+4. Consistency: Serializable transactions on bidding.
+
+we can have backup copies of bidding service, whenever bidding service receives a bid, it acquires product lock
+and add record in bid table, backup bidding service can follow that db 
+
+Watching an auction:
+1. When a user opens the auction page, their browser opens a WebSocket/SSE connection to your backend.
+2. The backend registers the user’s connection for the specific auction they’re viewing.
+3. Every time a new bid is placed:
+    3.1 Bidding Service updates the DB with the new highest bid.
+    3.2 Bidding Service publishes a bid update event to an internal message bus (e.g., Kafka/RabbitMQ).
+    3.3 A Real-Time Update Service (or the Bidding Service itself) subscribes to these events.
+    3.4 The Real-Time Update Service pushes the new price to all connected clients via their WebSocket/SSE connections.
+    3.5 Clients receive the update and render the new price immediately in the UI.

@@ -1,0 +1,39 @@
+Auction Management:(Seller only)
+
+1. Auction Lifecycle
+POST /api/v1/auctions
+    Create an auction event
+    Body: auction_title, auction_start, auction_end
+
+GET /api/v1/auctions/{auctionId}
+    View details of a specific auction
+
+2. Auction Products
+POST /api/v1/auctions/{auctionId}/products
+    Add products to an auction
+    Body: productId, start_price
+
+GET /api/v1/auctions/{auctionId}/products
+    List products added to the auction
+
+
+Search & Browse (Bidders)
+
+1. GET /api/v1/auctions/active
+List active auctions
+
+2. GET /api/v1/auctions/{auctionId}/products
+List products in a given auction
+
+3. GET /api/v1/search?query=...
+Full-text search across products in active auctions (ElasticSearch-backed)
+
+
+Bidding (Bidders):
+
+1. POST /api/v1/auctions/{auctionId}/products/{auctionProductId}/bids
+Place a new bid on a specific auctioned product
+Body: bid_amount
+
+2. GET /api/v1/auctions/{auctionId}/products/{auctionProductId}/bids
+View bid history for an auctioned product

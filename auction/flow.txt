@@ -1,0 +1,28 @@
+1. Seller Listing Flow:
+    1.1 Seller logs in → API Gateway → Auth Service → verified as SELLER.
+    1.2 Seller calls POST /auctions → Auction Management Service → saves product in Product Catalog + relational DB.
+    1.3 Product info published to Search Service (ElasticSearch) via event queue.
+
+
+2. Bidder Search Flow:
+    2.1 Bidder logs in → API Gateway → Auth Service → verified as BIDDER.
+    2.2 Bidder calls GET /search?q=xyz → Search Service → queries ElasticSearch → returns active auctions matching search criteria.
+
+3. Bidding Flow:
+    3.1 Bidder places a bid → API Gateway → Bidding Service.
+    3.2 Concurrency Handling:
+        Use optimistic locking (e.g., version/timestamp in DB) or
+        Distributed lock (e.g., Redis Redlock) on auction record.
+        Bidding Service validates auction is still active → updates highest bid atomically.
+
+New highest bid event is published → updates cache/search if needed.
+
+4. Auction Closing Flow:
+    4.1 Scheduler triggers when auction_end time is reached.
+    4.2 Auction Management Service:
+        Marks auction status as ENDED.
+        Determines highest bid → winner.
+        Triggers Notification Service to send SMS to seller & winning bidder.
+
+
+        

@@ -1,0 +1,42 @@
+
+1. API Gateway:
+Single entry point for sellers & bidders (authenticates requests).
+
+2. Authentication Service:
+Manages accounts and enforces mutually exclusive roles (either seller or bidder).
+Issues JWT tokens for authorized access.
+
+3. User Service:
+Stores user profiles, roles, and preferences.
+
+4. Auction Management Service:
+Handles creation, updates, and lifecycle of auctions.
+Enforces auction start/end times.
+Marks auction as closed and finalizes the winner.
+
+5. Product Catalog Service
+Lets sellers list products for auction.
+Stores product metadata.
+
+6. Search Service (ElasticSearch)
+Indexes active product listings.
+Allows bidders to search/filter auctions.
+
+7. Bidding Service
+Handles real-time bid placement.
+Ensures concurrent bids are serialized.
+Guarantees strong consistency for latest/highest bid.
+
+8. Notification Service
+Sends SMS/email notifications to winning bidder and seller.
+
+9. Scheduler Service
+Monitors auctions to close them at end time and trigger winner finalization.
+
+Database Layer
+Relational DB (e.g., Postgres) for transactional consistency on auctions, bids, and users.
+
+ElasticSearch for product search.
+
+Messaging Queue (e.g., Kafka/SQS/RabbitMQ)
+
