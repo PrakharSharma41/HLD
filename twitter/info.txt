@@ -18,19 +18,26 @@ store followers data in graph database
 we can shard data based on user_id because if a user want to see tweets of followers, service can search for shard containing 
 that follower id
 
-user:
+Graph db issues:
+1. Graph DBs like Neo4j are optimized for local graph traversals on a single machine or small cluster,
+2. Graph depth grows exponentially
+    2.1 1st degree: 1 million nodes (followers).
+    2.2 2nd degree: potentially billions (if each follower follows 1000 users).
+    2.3 You can’t realistically compute or store this dynamically in a user-facing request.
+
+user: relational data for users
 user_id, name, email
 
-follower:
+follower: use graph db or cassandra
 follower_id, followee_id
 
-tweet: 
+tweet: use nosql, it has hihg write rate
 activity_id, user_id, activity_time,created_at
 
-comment:
+comment: use nosql, it has hihg write rate
 activity_id, user_id,activity_time
 
-activity_likes:
+activity_likes: can use cassandra here with counter value
 activity_id,like_count
 
 
