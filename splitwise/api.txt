@@ -1,0 +1,33 @@
+User APIs:
+    1. POST /users/register — create account.
+    2. POST /users/login — authenticate.
+    3. GET /users/:id/balances — view net balance with others.
+
+
+Group APIs (optional):
+    1. POST /groups — create a group.
+    2. GET /groups/:id — get group details.    
+
+Expense APIs:
+    1. POST /expenses
+request body: {
+  "description": "Dinner at Cafe",
+  "amount": 2000,
+  "paid_by": "<user_id>",
+  "split": [
+    {"user_id": "A", "share": 1000},
+    {"user_id": "B", "share": 1000}
+  ],
+  "group_id": "<group_id>" // optional
+}
+
+    2. PUT /expenses/:id — update an expense.
+    3. DELETE /expenses/:id — delete an expense.
+    4. GET /expenses/:id — get expense details.
+
+
+Balances API:
+    1. GET /balances — list all debts/credits.
+    2. POST /settlements — record a debt settlement.
+
+

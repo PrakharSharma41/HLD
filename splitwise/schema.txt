@@ -1,0 +1,40 @@
+1. Users:
+| Column         | Type      | Note            |
+| -------------- | --------- | --------------- |
+| user\_id (PK)  | UUID/int  | Unique ID       |
+| name           | string    | User's name     |
+| email          | string    | Unique, indexed |
+| password\_hash | string    | For login/auth  |
+| created\_at    | timestamp |                 |
+
+
+2. Groups (optional for grouping expenses):
+| group_id (PK) | UUID/int | |
+| name | string | |
+| created_by | user_id FK | who created group |
+| created_at | timestamp | |
+
+3. Expenses
+| expense_id (PK) | UUID/int | |
+| description | string | |
+| amount | decimal | Total amount |
+| paid_by | user_id FK | Who paid upfront |
+| group_id | group_id FK| nullable if no group|
+| created_at | timestamp | |
+
+4. Expense_Shares
+| expense_id FK | UUID/int | |
+| user_id FK | UUID/int | who owes |
+| share_amount | decimal | amount this user owes|
+
+5. Balances
+| user1_id FK | UUID/int | |
+| user2_id FK | UUID/int | |
+| balance | decimal | positive: user1 owes user2, negative: user2 owes user1|
+
+6. Settlement (optional)
+| settlement_id | UUID/int | |
+| payer_id FK | UUID/int | who pays |
+| payee_id FK | UUID/int | who receives |
+| amount | decimal | settlement amount |
+| created_at | timestamp | |

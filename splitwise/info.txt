@@ -1,0 +1,43 @@
+Functional Requirements:
+1. Users can register and log in.
+2. Users can create, update, delete expenses.
+3. Users can split expenses equally or unequally with others.
+4. The system tracks who owes whom and how much.
+5. Users can view their balances with other users.
+
+
+Relational Database (e.g., PostgreSQL/MySQL) — for transactional consistency of balances.
+
+Expense service:
+🔹 Expense Management
+1. Create a new expense (e.g., split dinner bill).
+2. Update an existing expense (e.g., correct amount or participants).
+3. Delete an expense (e.g., entered by mistake).
+4. Fetch details of a single expense.
+5. List expenses for a group or a user (e.g., activity feed).
+
+🔹 Validation
+1. Ensure splits add up to the total expense.
+2. Check that involved users exist.
+3. Validate permissions (e.g., only creator can edit/delete expense).
+
+🔹 Event Emission
+
+Emit events when an expense is created/updated/deleted so Balance Service can update balances.
+
+Balance Service:
+🔹 Balance Calculation & Updates
+1. Listen for new/updated/deleted expenses → recalculate net debts.
+2. Maintain net balance entries in the Balances table for each pair of users (e.g., Alice owes Bob ₹500).
+
+🔹 Debt Simplification
+1. Optional: Automatically or on-demand simplify debts in groups (e.g., circle debts cancellation).
+
+🔹 Settlement Management
+1. Record settlements (manual payments between users).
+2. Adjust balances accordingly when settlements are recorded.
+
+🔹 Balance Retrieval
+1. Provide per-user or group-level balance breakdowns:
+2. /users/:id/balances → list of who user owes and who owes them.
+3. /groups/:id/balances → net balances within a group.
