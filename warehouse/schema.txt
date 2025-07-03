@@ -1,0 +1,37 @@
+sql is preferred because:
+1. Strong consistency (each item’s location must always be accurate),
+2. Relational integrity (items → warehouses, reconciliation logs),
+
+
+1. Item:
+item_id (PK, UUID or serial number)
+sku (item type/model)
+description
+current_warehouse_id (FK to Warehouse)
+status (e.g., IN_STOCK, LOST, IN_TRANSIT, RETIRED)
+last_updated_at
+
+2. Warehouse:
+warehouse_id (PK)
+name
+location
+
+3. ItemTransferLog
+transfer_id (PK)
+item_id (FK)
+source_warehouse_id (FK)
+destination_warehouse_id (FK)
+transfer_time
+initiated_by (user/system)
+remarks
+
+4. InventoryReconciliation
+reconciliation_id (PK)
+warehouse_id
+item_id
+expected_status
+found_status (FOUND, MISSING)
+checked_at
+
+
+we can shard by warehouse_id(preferred) than item_id so that all items for a warehouse can live on same shard

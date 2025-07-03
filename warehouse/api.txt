@@ -1,0 +1,13 @@
+1. POST /inventory/upload-excel
+Upload Excel file → bulk populate items.
+
+2. POST /inventory/transfer
+Body: { "item_id": "12345", "destination_warehouse_id": "WH-002" }
+GET /inventory/items?warehouse_id=WH-001
+
+3. List items in a warehouse.
+POST /inventory/reconcile
+Body: { "warehouse_id": "WH-001", "scanned_item_ids": ["item1", "item2",...] }
+
+4. GET /inventory/mismatches?warehouse_id=WH-001
+View mismatches/lost items.

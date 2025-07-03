@@ -1,0 +1,9 @@
+1. Inventory Service:
+APIs for uploading Excel, transferring items, and viewing item states.
+
+2. Reconciliation Service:
+Periodically scans item presence → updates Item.status.
+
+3. Persistent Database (SQL/NoSQL depending on scale):
+Single source of truth for item-level tracking.
+

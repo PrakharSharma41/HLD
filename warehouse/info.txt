@@ -1,0 +1,25 @@
+Functional Requirements:
+1. Each item is unique, tracked via a unique serial number (e.g., item_id or serial_number).
+2. Warehouse maintains a collection of individual items, not just quantities.
+3. Transfer means updating item ownership/location in the database, not physically shipping them.
+4. Excel ingestion should map each item in the file to a unique record in DB.
+5. Mismatch & lost items mean items recorded in DB but missing or misplaced physically — we must detect these via reconciliation.
+6. No need to create transfer orders as for logistics — it’s a data operation.
+
+
+Transfer Approach:
+1. When moving an item from Warehouse A → Warehouse B:
+2. Server receives request specifying item_id and destination warehouse_id.
+3. Server validates that the item is currently in the source warehouse.
+4. Server updates current_warehouse_id of the item in DB.
+5. Insert a record into ItemTransferLog for audit trail.
+6. No transfer order entity required — just an atomic DB update + logging.
+
+
+Mismatch & Lost Item Tracking:
+solved using reconciliation
+1. Periodically or manually, perform reconciliation:
+2. System runs a reconciliation job where physical scan (barcode/RFID) is compared with DB records.
+3. If an item is physically absent but present in DB → mark status as LOST.
+4. If an item is found in warehouse but DB says it belongs elsewhere → flag mismatch.
+5. Insert discrepancies into InventoryReconciliation table.
