@@ -1,0 +1,72 @@
+Functional Requirements:
+1. upload a file
+2. download a file
+3. sync file across devices
+
+Non Functional Requirements:
+1. Availability >> consistency 
+2. low latency uploads and downloads(as low as possible)
+3. support large files
+4. resumable uploads
+5. high data integrity(sync accuracy)
+
+
+Core Entities:
+File, File Metadata, Users
+
+
+API:
+POST /files -> 200
+body: File & FileMetadata
+
+GET /files/:fileId ->File & FileMetadata
+
+GET /changes?since={timestamp}->fileIds[] 
+
+update APIS to below:
+POST /files -> pre signed url
+body: FileMetadata
+
+PUT {pre signed url}
+body FileChunk
+
+PATCH /fles -> 200
+body PartialFileMetadata (chunk status update)
+
+GET /files/fileId -> File & FileMetadata
+
+GET /changes?since={timestamp} -> FileMetadata
+
+ClientApp watches for the changes to local folder and uploads those changes to fileService
+changes are synced using sync service, sync servce contacts file service based on  timestamp
+
+Client has localDb about each of the file in its local filesystem 
+
+Database:
+FileMetadata: dynamodb
+FileId, FileName,FileType,size, ownerId, creation time, update time,
+status(started/etc.), chunks:[{id as fingerprint, status, s3link,updatedAt}]
+
+when client request for upload, it sends filemetadata along with chunkids that are stored in 
+fileMetadata and returns a s3 pre signed url that  can be used by client to upload chunks
+after upload  is complete, 2 ways for backend to know upload is complete:
+1. client can tell fileService that upload is complete and update the status
+2. we can use s3 multipart upload, but s3 notification does not work for each chunk in multipart upload
+
+Sync:
+1. Remote changed:
+- pull for changes
+- download new chunk and replace
+
+2. Local changed:
+- upload changed chunk to remote
+
+for sync to be consistent:
+we can poll the db
+
+
+Reconciliation:
+local folder will periodically connect with backend db to be in consistent state
+
+for 1. websocket can also be used but it can be overkill for system
+

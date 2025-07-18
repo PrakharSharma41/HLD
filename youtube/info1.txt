@@ -1,0 +1,64 @@
+FUNCTIONAL Requirements:
+1. user should be able to upload videos
+2. user should be able to watch/stream videos
+
+ESTIMATION:
+approx 1M uploads per day
+100M DAU
+max video size of 256 gb
+
+NON FUNCTIONAL REQUIREMENTS:
+1. availability over consistency for video uploads
+2. support uploading/streaming for large videos(256gb)
+3. low latency streaming 
+4. scalanility to scale to 1M uploads per day and 100M Views 
+
+
+Core Entities:
+1. Video
+2. Video Metadata
+3. Users
+
+API:
+1. upload video
+POST /video
+{
+    Video, VideoMetadata
+}
+
+2. watch video
+GET /video/:videoId -> Video and VideoMetadata
+
+uploading video:
+since api gateway has max size of data that can be send in a post request
+we will directly upload video to s3 using multipart api upload exposed to s3
+
+multipart upload:
+upload videos in chunks to s3 and s3 combines chunks together 
+
+pre signed url:
+video service asks for pre signed url from s3 where video chunks can be placed in s3
+
+once multipart video is uploaded we need to update video metadata upload status
+2 ways:
+1. client tells us upload is complete and provides the s3 url for combined video
+2. use s3 notification(some lambda function can pick that up) and pick the metadata for that video
+
+after upload is complete, we can then chunk the file in s3 to multiple smaller parts in s3 itself
+then chunks are used for streaming
+
+then we can transcode those chunks into multiple smaller chunks
+
+
+
+
+1️⃣ Client initiates upload via backend:
+Client --> Backend: "Start Upload"
+Backend --> S3: CreateMultipartUpload
+Backend <-- S3: uploadId
+Backend --> Client: uploadId + pre-signed URLs
+2️⃣ Backend saves uploadId with video metadata in DB.
+
+3️⃣ Client uploads parts directly to S3 using pre-signed URLs.
+
+4️⃣ On resume, client asks backend for uploadId + parts uploaded.

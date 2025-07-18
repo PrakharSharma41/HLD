@@ -10,9 +10,10 @@ Functional Requirements
 7. changes should be synchronized to remote server and other online devices.
 
 Non-functional requirements
-1. System should be highly reliable. Any file uploaded should not be lost.
-2. System should be highly available.
-
+1. Availability >> consistency (eventual consistency fine for file upload)
+2. Low latency upload/download (as low as possible given file size)
+3. Fault tolerant upload
+4. Low latency file sync (< 1 min) ie. changes should be picked up quickly
 Client
 
 Client here means desktop or mobile application which keeps a watch on user’s workspace 
