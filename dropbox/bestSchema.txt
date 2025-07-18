@@ -1,0 +1,14 @@
+workspace:
+workspace_id, ownerId
+
+file:
+file_id, file_name, latest_version,checksum, created_at,updated_at
+
+file_version:
+file_id, version_id, device_id, last_modified
+
+chunks:
+chunk_id, file_version_id
+
+device:
+device_id, user_id

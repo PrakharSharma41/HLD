@@ -61,12 +61,18 @@ Sync:
 2. Local changed:
 - upload changed chunk to remote
 
+for 1. websocket can also be used but it can be overkill for system
+
 for sync to be consistent:
-we can poll the db
+we can poll the db or use event bus(kafka)
 
 
 Reconciliation:
 local folder will periodically connect with backend db to be in consistent state
 
-for 1. websocket can also be used but it can be overkill for system
+How to handle conflict if multiple user  try to modify at same time?
+if 2 user try to modify at same time, then user 1’s file is processed by our system first. User 1’s update operation goes through, but, user 2 gets a sync conflict.
+Our system presents both copies of the same file: user 2’s local copy and the latest version from the server
 
+
+when a client comes online they can connect with sync service and get changes from kafka
