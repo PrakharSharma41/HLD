@@ -59,3 +59,27 @@ status:
 a booking is cancelled if payment is not made in a particular time,
 we can put a key for that booking with a ttl in redis
 reds has callbacks that will notify us if booking is about to be cancelled
+
+elastic search data:
+{
+  "hotel_id": 123,
+  "name": "The Grand Palace",
+  "locality_id": 45,
+  "description": "Luxury stay in the heart of the city.",
+  "facilities": ["free_wifi", "swimming_pool", "gym"],
+  "room_types": [
+    {
+      "room_type": "deluxe",
+      "price_min": 5000,
+      "price_max": 8000,
+      "available_quantity": 10
+    },
+    {
+      "room_type": "standard",
+      "price_min": 3000,
+      "price_max": 5000,
+      "available_quantity": 5
+    }
+  ],
+  "is_active": true
+}
