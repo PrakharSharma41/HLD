@@ -31,6 +31,8 @@ dont show it in search
 read and write and we can seach based on partiotion key(like booking id)
 
 
+facility can be free wifi, swimming pool, gym etc
+room_type can be deluxe etc
 DATABASE:
 Hotels(mysql works well with read heavy and write less frequently)
 
@@ -41,15 +43,11 @@ hotel_facilities:
 id, hotel_id, facility_id
 
 rooms:
-id, hotel_id, display_name, quantity, price_min,price_max
+room_id,room_type_id hotel_id, display_name, quantity, price_min,price_max
 
-rooms_facilities:
-id, room_id, facility_id
 
-Bookings
-
-available rooms:
-room_id, date,initialQuantity, availableQuantity
+room_type table:
+room_type_id, date,initialQuantity, availableQuantity
 
 booking:
 booking_id, room_id, user_id, start_date,end_date,numberofRooms,status

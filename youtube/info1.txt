@@ -11,7 +11,7 @@ NON FUNCTIONAL REQUIREMENTS:
 1. availability over consistency for video uploads
 2. support uploading/streaming for large videos(256gb)
 3. low latency streaming 
-4. scalanility to scale to 1M uploads per day and 100M Views 
+4. scalability to scale to 1M uploads per day and 100M Views 
 
 
 Core Entities:
