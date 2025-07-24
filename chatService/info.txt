@@ -9,7 +9,11 @@ notification (use notification service to send notificaiton from message queue)
 message synchronization across device (maintain counter for last read message per user)
 online presence : use presence server(send heartbeat)
 
-
+non functional requirements:
+1. delivered with low latency
+2. guarantee delivey message
+3. billion of users, high throughput
+4. fault tolerant
 
 CAPACITY ESTIMATIONS:
 2B Total user DAU 300M 
@@ -20,9 +24,11 @@ use websockets
 
 
 Service discovery:
+The primary role of service discovery is to recommend the best chat server for a client based on the criteria like geographical location, server capacity, etc. Apache Zookeeper is a popular open-source solution for service discovery.
 
-The primary role of service discovery is to recommend the best chat server for a client based on the criteria like geographical location, server capacity, etc. 
-Apache Zookeeper [7] is a popular open-source solution for service discovery. 
+If User B is online: Server A forwards the message to Server B, which delivers it to User B via their open WebSocket connection.
+If User B is offline: Server A sends the message to the notification service, which triggers a push notification to notify User B of the new message.
+
 
 Database to use:
 tradeoff between consistency, availability, shard our database
@@ -39,15 +45,21 @@ users:
 user_id,username, lastActive,status:online/offline
 
 messages:
-message_id,from_user,to_user,time,content
-For private chats, store messages with (user1_id, user2_id) as a partition key
+message_id,from_user,time,content,status(sent/delievered/read)
+For private chats, store messages with message_id as a partition key
 
-group_message:
+chat message:
 channel_id,message_id,user_id,content,created_at
 partition key based on channel_id
 
-group_members:
+chat participants:
 channel_id,user_id
+we can also create a GSI to get all channels a user is part of
+
+inbox table:
+message_id, recipient_id
+when client comes online than client can read messages from this table
+entry in this table is only created when client is offline
 
 message_sync:
 user_id,device_id,last_message_offset
