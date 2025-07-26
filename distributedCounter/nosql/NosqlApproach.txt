@@ -3,9 +3,6 @@ we can use apache cassandra here.
 The nodes in Cassandra communicate with each other using the gossip protocol. 
 Apache Cassandra supports automatic partitioning of the database using consistent hashing. 
 
-Frequent disk access can become a potential performance bottleneck for reads of the distributed counter using Cassandra. 
-An additional cache layer using Redis can be provisioned with the cache-aside pattern to improve the reads. 
-
 The downside of this approach is that the data consistency of the distributed counter cannot be guaranteed.
 
 The problems with the Cassandra counter are the following:
@@ -38,3 +35,19 @@ Why can’t Cassandra avoid this?
 Counters are append-only under the hood: they don’t store the absolute value but the deltas (increments/decrements).
 
 There’s no absolute “final value” to overwrite like normal columns — so when nodes sync, old increments can be added again.
+
+
+⚙️ How Cassandra Counters Work Internally
+Cassandra uses distributed counters implemented using a variation of PN-Counters under the hood:
+
+Each node maintains a local shard of the counter.
+
+Nodes track increments and decrements separately (just like PN-Counter).
+
+When reading the counter value, it sums all the deltas across replicas.
+
+🔄 Replication and Conflict Resolution
+Each replica stores a (replica_id, delta) pair.
+
+During read or repair, Cassandra merges values using last-write-wins per replica, ensuring eventual consistency.
+

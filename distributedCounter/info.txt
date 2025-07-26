@@ -73,3 +73,5 @@ to split one counter id into multiple shards:
     Randomly (or based on some rule) pick one of the 10 shards.
     Example: pick shard 7.
     Increment likes_counter_7 by +1.
+
+queue can be introduced in any approach(mysql/nosql/redis)
