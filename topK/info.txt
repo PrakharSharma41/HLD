@@ -40,13 +40,6 @@ Heap Data: The current state of the min-heap.
 Stream Offset: The position in the event stream from which events have already been processed.
 On server crash, we can reconstruct the heap from the latest snapshot. It will then replay events from the stored stream offset to catch up with any missed events and restore the correct state.
 
-Also store buckets per video per minute
-CREATE TABLE video_score_bucket (
-  timestamp          DateTime,
-  video_id           String,
-  genre              String,
-  score              Float64
-)
 
 
 for global top K:
@@ -59,7 +52,7 @@ CREATE TABLE global_topk_snapshots (
     PRIMARY KEY (snapshot_time, rank)
 );
 
-video_stats and video_score_bucket can be considered almost same
+Also store buckets per video per minute
 CREATE TABLE video_stats ( (this table can be used also to calculate during arbitrary time range and in case there is no entry in global topk snapshots)
     video_id VARCHAR PRIMARY KEY,
     total_views BIGINT NOT NULL,
