@@ -14,5 +14,5 @@ Scaling	                    Horizontal with Redis Cluster                ✅ Nat
 Cost	                    Cheaper for real-time + short-term data	     Potentially cheaper for persistent workloads
 Complex queries	            ❌ Limited	                                ✅ Supports some query flexibility
 
-in DynamoDB we need to define partition key ,which can be combination of game_id,user_id and a sort key which will be score
+in DynamoDB we need to define partition key ,which can be combination of game_id and a sort key which will be score+game_id
 we will have multiple sorted partitions similar to redis case

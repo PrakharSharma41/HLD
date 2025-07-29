@@ -1,0 +1,107 @@
+https://systemdesignschool.io/problems/topk/solution
+
+Functional Requirements:
+1. query top K most viewed videos
+2. accept a time period parameter(minuet,hour,day,all time)
+3. sliding window(other options are  global window, tumbling window etc)
+4. no arbitrary time(use only for current time)
+
+Non Functional Requirements:
+1. <1min for video to be in top k after upload
+2. low latency for query
+3. massive amount of views and videos
+
+Core entities:
+View, Video,Window(minute/hour/day)
+
+API:
+GET /view/video?k={k}&window={window}
+response:[{videoId,views}]
+
+Scale Requirements:
+There are 10 billion song plays per day.
+There are 100 millions of songs.
+The top K songs API is accessed 1 million times per day.
+K is ~100-1000.
+
+we will implement the topk functionality using heap and we will also maintain
+a map of videoId to their view count
+
+for sliding window solution, one instance can have 2 consumers, 
+first consumer for beginning offset(start of window) and second at end offset(end of window)
+
+
+We can persist the heap and stream offset as a snapshot to a remote datastore (e.g., Redis, DynamoDB, or cloud storage). 
+This ensures that data can be recovered in case of a failure.
+
+Each snapshot includes:
+
+Heap Data: The current state of the min-heap.
+Stream Offset: The position in the event stream from which events have already been processed.
+On server crash, we can reconstruct the heap from the latest snapshot. It will then replay events from the stored stream offset to catch up with any missed events and restore the correct state.
+
+Also store buckets per video per minute
+CREATE TABLE video_score_bucket (
+  timestamp          DateTime,
+  video_id           String,
+  genre              String,
+  score              Float64
+)
+
+
+for global top K:
+use redis sorted set and persist the data in sql
+CREATE TABLE global_topk_snapshots (
+    snapshot_time TIMESTAMP NOT NULL,
+    rank INTEGER NOT NULL,
+    video_id VARCHAR NOT NULL,
+    total_views BIGINT NOT NULL,
+    PRIMARY KEY (snapshot_time, rank)
+);
+
+video_stats and video_score_bucket can be considered almost same
+CREATE TABLE video_stats ( (this table can be used also to calculate during arbitrary time range and in case there is no entry in global topk snapshots)
+    video_id VARCHAR PRIMARY KEY,
+    total_views BIGINT NOT NULL,
+    last_updated TIMESTAMP DEFAULT NOW()
+);
+if redis crashes, we can bring the data in redis from db
+
+below query can also be used for sliding window
+SELECT video_id, SUM(views) AS score
+FROM video_stats
+WHERE stat_time BETWEEN NOW() - INTERVAL '60 minutes' AND NOW()
+GROUP BY video_id
+ORDER BY score DESC
+LIMIT k;
+
+
+for sliding window we need table like below:
+CREATE TABLE global_topk_snapshots (
+    window_start_time TIMESTAMP,
+    window_end_time TIMESTAMP,
+    k INT,
+    rank INT,
+    video_id VARCHAR,
+    score FLOAT,
+    PRIMARY KEY (window_start_time, window_end_time, k, rank)
+);
+
+Snapshotting Strategy:
+You can run a batch job or consumer that:
+Pulls Redis Top-K (or recomputes from stats).
+Saves to global_topk_snapshots every X minutes.
+Optionally compresses older rows (e.g., hourly past 30d, daily older).
+
+When to Take Snapshots:
+Every 5 minutes: Good for fine-grained trending (but large volume)
+Hourly or Daily: Lighter storage, enough for most dashboards
+Use a background job or cron scheduler.
+
+Retrieving Historical Top-K:
+SELECT video_id, total_views
+FROM global_topk_snapshots
+WHERE snapshot_time = '2025-07-28 12:00:00'
+ORDER BY rank ASC;
+
+
