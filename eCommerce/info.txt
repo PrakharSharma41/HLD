@@ -1,8 +1,14 @@
 FUNCTIONAL REQUIREMENTS:
-1. Inventory : search,list
-2. Delivery: notifications through email or sms
-3. payments
-4. Cart: add/remove items
+1. Inventory : search functioanity
+2. view details of product
+2. user should be able to add items to cart
+3. user should be able to make payment
+4. user should be able to check order order_status
+
+NON FUNCTIONAL REQUIREMENTS:
+1. low latency for search
+2. scale based on load
+3. consistent for orders and cart
 
 
 Inventory is handled using elastic search since it will provide fast search 
@@ -18,18 +24,19 @@ metrics:
 
 
 DATABASE:
+we will have inventory db that will maintain product count, it need to be sql since it has to be highly consistent
+user db is sql
 
-products db and user db is sql
-products: product_id,product_name,seller_id,rating,product_count
+products: product_id,order_id,product_count,category,price,s3_image_link (use nosql like document db since we will have flexible schema)
+inventory: product_id, product_count (indexed on product_id)
+
 comments: product_id, comment_id,text
-product_image: image_id,product_id, image_link
 
 use nosql for orders Eventual consistency is fine for products & users (use replicas for reads).
 orders: user_id,order_id, order_status,payment_status
-products: product_id,order_id,product_count
 
 
-cart db is nosql(cart will have expiry in redis using ttl)
+cart db is sql(we need it to be consistent)
 carts: cart_id,user_id, cart_name
 products: product_id,product_count,cart_id
 
@@ -40,3 +47,6 @@ s3 as object store for image
 
 we will have a CDC(change data capture) between sql(products db) and elasticsearch
 using kafka which is used to track and capture changes and propagate in real time
+
+payment service needs to update order payment service as well as update the inventory, so it will instead send an event to kafka which
+consumers will pick and update these 2 things instead of making payment service do these things
