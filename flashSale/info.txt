@@ -1,0 +1,39 @@
+FUNCTIONAL REQUIREMENTS:
+1. Sudden spike in traffic in a very short window of time.
+2. Items in inventory is usually much lesser than the demand. (There can be only 10k items for sale for millions of users)
+3. System should be able to handle the concurrent read writes effectively so as to give users a good buying experience.
+4. System should ensure that there are no over bookings or under bookings for the item. Inventory that is in reserved state should be freed to be rebooked if the purchase has failed.
+5. Bookings needs to be completed in real time. We cannot keep the users guessing if they will get the booking or not.
+6. Users should get the right information on the number of items available in inventory. In such cases users refresh the page again and again to fetch the number of items still available.
+
+NON FUNCTIONAL REQUIREMENTS:
+1. Scalability: The system should handle 10 million+ users concurrently.
+2. High Performance: Order reservation response time should be <100ms.
+3. Reliability: The system should prevent race conditions and overselling.
+
+
+Components:
+RedisCache: Manages real-time inventory and reservations.
+OrderService: Processes orders and updates inventory.
+SQS (Simple Queue Service): Ensures orders are processed asynchronously.
+OrderWorker: Picks orders from SQS, finalizes reservations, and updates the database.
+DLQ (Dead Letter Queue): Stores failed orders for retry.
+
+in case redis fails, we will also use below query
+update inventory set product_count=product_count-<input> where product_id=<id> and product_count>=<input>;
+
+Use Redis + Atomic Lua Scripts
+
+-- Lua script to atomically check and decrement
+local stock = redis.call("GET", KEYS[1])
+if tonumber(stock) > 0 then
+  redis.call("DECR", KEYS[1])
+  return 1
+else
+  return 0
+end
+
+The Thundering Herd Problem:
+rate limiting is used before orderservice and queue can also be used before order service
+
+if order fails multiple times then we can reset the decreased count for that product_i

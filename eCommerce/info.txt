@@ -33,10 +33,10 @@ inventory: product_id, product_count (indexed on product_id)
 comments: product_id, comment_id,text
 
 use nosql for orders Eventual consistency is fine for products & users (use replicas for reads).
-orders: user_id,order_id, order_status,payment_status
+orders: user_id,order_id, order_status,payment_status,payment_id
 
 
-cart db is sql(we need it to be consistent)
+cart and product db is sql(we need it to be consistent)
 carts: cart_id,user_id, cart_name
 products: product_id,product_count,cart_id
 

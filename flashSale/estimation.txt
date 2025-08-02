@@ -1,0 +1,12 @@
+Estimating Concurrent Users
+
+Total daily active users (DAU) interested in the sale: 10 million
+Flash sale duration: 24 hours
+Total seconds in 24 hours = 24 × 60 × 60 = 86,400 seconds
+Concurrent requests per second = 10 million / 86,400 → 115.74 ≈ 115 concurrent users per second
+
+This means our system needs to handle at least 115 concurrent users every second, assuming a uniform traffic pattern. However, in reality:
+
+Peak traffic happens in the first few minutes.
+The load is not evenly distributed over 24 hours.
+We may experience bursts of 10,000+ concurrent users during the peak.
