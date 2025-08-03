@@ -1,0 +1,9 @@
+POST /api/flashsale/order
+Content-Type: application/json
+
+{
+  "user_id": "U123",
+  "product_id": "P999",
+  "quantity": 1
+}
+
