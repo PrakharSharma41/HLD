@@ -30,6 +30,8 @@ API:
 Database:
 shortUrl(PK),longUrl,expirationTime,creationTime,userId
 
+space: 8 bytest+100bytest+8bytes+100bytes+1byte  approx 500B 500B *1B 500GB
+
 301 redirect:
 A 301 redirect shows that the requested URL is “permanently” moved to the long URL. Since it is permanently redirected, 
 the browser caches the response, and subsequent requests for the same URL will not be sent to the URL shortening service. 
