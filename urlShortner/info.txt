@@ -2,9 +2,13 @@ FUNCTIONAL REQUIREMENTS:
 generate url
 get url
 
+NON FUNCTIONAL REQUIREMENTS:
+1. low latency on redirects
+2. scale to support 100m dau and 1b URLs
+3. uniqueness of short URLs(5 to 7 urls)
+4. high availability, eventual consistency for url shortening
 
-Back of the envelope estimation
-
+Back of the envelope estimation:
 • Write operation: 100 million URLs are generated per day. 
 • Write operation per second: 100 million / 24 /3600 = 1160
 • Read operation: Assuming ratio of read operation to write operation is 10:1, read operation per second: 1160 * 10 = 11,600
@@ -12,13 +16,40 @@ Back of the envelope estimation
 • Assume average URL length is 100.
 • Storage requirement over 10 years: 365 billion * 100 bytes * 10 years = 365 TB
 
+an ec2 t3 medium instance can roughly handle 1000rps
+we can horizontally scale(we can combine read and write service into one )
 
-301 redirect. 
+API:
+1. POST /urls -> shortUrl
+{
+    originalUrl, alias?, expirationTime
+}
 
+2. GET  {shortUrl} -> redirect to originalUrl
+
+Database:
+shortUrl(PK),longUrl,expirationTime,creationTime,userId
+
+301 redirect:
 A 301 redirect shows that the requested URL is “permanently” moved to the long URL. Since it is permanently redirected, 
 the browser caches the response, and subsequent requests for the same URL will not be sent to the URL shortening service. 
 Instead, requests are redirected to the long URL server directly.
 
 
-302 redirect. A 302 redirect means that the URL is “temporarily” moved to the long URL, meaning that subsequent requests for the same URL will be sent to the URL shortening service first.
+302 redirect:
+A 302 redirect means that the URL is “temporarily” moved to the long URL, meaning that subsequent requests for the same URL will be sent to the URL shortening service first.
 Then, they are redirected to the long URL server.
+
+url shortening:
+1. prefix of long url (lots of collision possible, multiple long url can have same prefix)
+
+2. random number generator(lets say from 1 to 1 billion i.e 10 characters)
+use base62 encoding on the generated number, 0-9 A-z a-z
+62^6 possible combinations approx 56B combinations
+still this can have lots of collisions, check for collision in db 
+
+3. hash long url: 
+md5(longUrl)-> hash ->base62(hash)
+
+4. counter:
+incrementing a counter -> base62
