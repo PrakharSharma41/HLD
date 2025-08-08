@@ -30,3 +30,25 @@ descriptors:
     rate_limit:
         unit: day 
         requests_per_unit: 5
+
+use token bucket:
+we can use lua scripting, where we will send read token for a user and udpate tokens for a user 
+all these operation in lua script that redis can execute atomically using eval.
+
+Scale:
+We need to distribute the Redis load across multiple instances.
+We need to shard consistently so that all of a client's requests always hit the same Redis instance.
+We need a distribution algorithm like consistent hashing to solve this. For authenticated users, we hash their user ID to determine which Redis shard stores their rate limit data. 
+For anonymous users, we hash their IP address. For API key requests, we hash the API key. 
+
+Avaiabality:
+System can fail if redis fails
+each redis instance will have multiple replica instance
+
+Latency:
+api gateway can maintain pool of persistent connections with redis instance so that we dont need to create connection again and again
+
+How to update rules in api gateway:
+1. Use a push-based system where configuration changes are immediately sent to all API gateways. 
+2. ZooKeeper maintains configuration data and notifies all connected clients (your API gateways) immediately when any configuration changes.
+
