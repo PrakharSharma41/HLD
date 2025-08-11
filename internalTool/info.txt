@@ -136,6 +136,7 @@ Health Checks
     * Health checks are available in the open-source version but are less comprehensive compared to HAProxy.
     * Advanced health check features (e.g., active health checks with custom thresholds) are typically part of NGINX Plus (the commercial version).
 
+HAProxy tends to have a lower memory footprint than Nginx, especially when acting purely as a TCP/HTTP load balancer without serving static content.
 
 Use HAProxy if your primary goal is simple load balancing with header-based routing. HAProxy is more lightweight and optimized for this.
 Use NGINX if you might later need caching, advanced request manipulation, or serving static content.
@@ -253,3 +254,12 @@ how idempotency of api is maintained?
     1. from frontend side, analyze button is disabled
     2. each analyze api call inserts metadata in postgres with remote log bundle path as primary key which is unique
     and then message is published in rabbitmq
+
+Redis:
+8.0
+
+manticore:
+6.3.4
+
+Rabbitmq:
+3.13.4
