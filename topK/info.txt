@@ -90,6 +90,8 @@ When to Take Snapshots:
 Every 5 minutes: Good for fine-grained trending (but large volume)
 Hourly or Daily: Lighter storage, enough for most dashboards
 Use a background job or cron scheduler.
+we can set snapshot time such that if new worker comes up, it reads the snapshot and based on that it get 
+offset to continue reading from kafka and retention policy for kafka can be adjusted 
 
 Retrieving Historical Top-K:
 SELECT video_id, total_views
