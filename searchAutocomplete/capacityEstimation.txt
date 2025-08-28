@@ -6,10 +6,12 @@ average search term is 20 characters = 4 words
 • 20 bytes of data per query string:
 • Assume we use ASCII character encoding. 1 character = 1 byte
 • Assume a query contains 4 words, and each word contains 5 characters on average. • That is 4 x 5 = 20 bytes per query.
-1B terms * 20 perfix = 20B entries map of prefix of search term to top 10 suggestions
+1B terms * 20 prefix = 20B entries map of prefix of search term to top 10 suggestions
 
 
 On average, 20 requests are sent for each search query.
 
 1B * 20/ 10^5 approx 200k tps
 
+Assume 20% of the daily queries are new. 200 million  * 20 byte per query = 4 GB.
+This means 4GB of new data is added to storage daily.

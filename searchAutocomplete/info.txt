@@ -1,8 +1,20 @@
+Functional requirements:
 1. when typing in the text box quickly load the top suggestions for word/terms based off input text.
 2. suggestions may be either for individual words or full search terms.
 3. top terms list should be updated at least once per day.
 
+Non functional requirements:
+1. Availability: The system should be highly available and aim for near-zero downtime. The system should have error handling mechanisms to prevent crashes and ensure it can handle large amounts of traffic.
+2. Scalability: The system should support 100 million daily users.
+3. Latency: The system should provide search suggestions in real-time (within a few hundred milliseconds).
+4. Efficiency: The system should efficiently use memory and computational resources.
+5. Consistency: Since the system will be read-only for the clients, consistency is not a primary concern.
 
+API:
+GET /suggestions?q={search-term}
+{
+    "suggestions": ["suggestion1", "suggestion2", ..., "suggestionn"]
+}
 
 we can use tries for solving this optimally, it takes o(1) for reads since we just have to
 go down in children node
