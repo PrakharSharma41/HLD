@@ -1,0 +1,56 @@
+Webhooks allow systems to send real-time notifications triggered by specific events.
+Functional Requirements:
+1. Accept API Calls to Receive Event Notifications: Accept API calls to receive event notifications (e.g., payment processed or order shipped),
+   execute corresponding operations, and persist original event data and operation results for tracking, auditing, and debugging.
+
+Non Functional Requirements:
+1. High availability: The system should be highly available and resilient to failures.
+2. Low latency: As mentioned in the scale requirement, end-to-end latency should be under 200 milliseconds.
+3. At-least-once processing: Each event should be processed at least once if the system accepts it.
+
+API:
+1. POST /webhooks/{source}
+Input: JSON payload + signature header.
+Processing:
+    Verify signature.
+    Store event in DB with status=RECEIVED.
+    Push to async queue for processing.
+Response: 200 OK (always acknowledge quickly, retries handled later).
+
+2. Get Events (Admin/Consumer Use)
+GET /events
+Query params:
+    status = [RECEIVED | PROCESSED | FAILED]
+    source = provider name
+    from & to = date range
+Use case: Monitor events, debug failures.
+
+
+
+How to ensure security?
+HMAC Signatures
+The webhook provider (e.g., Stripe) and the webhook service share a secret key(shared during setup of webhook). 
+
+HMAC (Hash-based Message Authentication Code) is a cryptographic technique that uses:
+1. A message (the webhook payload).
+2. A secret key (shared between provider and receiver).
+3. A hash function (e.g., SHA-256).
+
+Verification: 
+When the webhook service receives a request, it recalculates the HMAC hash using the shared secret and the request body. 
+If the calculated hash matches the one in the request, the request is authenticated.
+
+How to handle duplicate requests?
+Idempotency Keys
+An idempotency key is a unique identifier associated with each request that allows the server to recognize subsequent retries of the same request. To implement this, the webhook provider includes a unique identifier (e.g., event_id or request_id) in the webhook payload or headers. When processing a webhook event, 
+store the event_id along with a timestamp in a dedicated database table for tracking processed events.
+
+How to handle out-of-order requests?
+If the Stripe sends two events:
+
+invoice.paid
+invoice.created
+In an ideal world, we should process the invoice.created event first and then the invoice.paid event. However, this doesn't always happen and we may receive the invoice.paid event first.
+
+Database:
+Use Postgres (or MySQL) as the primary DB for webhook storage + idempotency, and optionally Kafka/Redis for async event fan-out at scale.
