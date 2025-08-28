@@ -1,0 +1,66 @@
+Functional requirements:
+1. design stock broker(apis for stock exchange already present)
+2. should be able to buy/sell orders and platform forwards it to exchange
+3. support both market and limit order
+4. users should be able to see stock price in real time
+
+Non Functional requirements:
+1. buy and sell should be highly consistent
+2. watching stock price - highly available
+
+Capacity Estimations:
+100M users 
+10M dau 
+
+stock price looking: read heavy
+buy/sell stock: less reads
+
+per user 10 stocks 20 times a day
+10M*10*20 2B per day 
+peak load: 5X 10B per day 
+
+2*10^9/10^5 approx 2*10^4 qps
+
+10% will buy and sell: 2*10^3 qps
+
+API:
+1. GET /api/v1/stockPrice?symbol=<>&time_range=1day
+
+2. POST /api/v1/order
+{
+    symbol: 
+    orderType:
+    type: limit/market
+    price:
+    timestamp:
+}
+
+
+Database:
+1. we can use timeseries db to store data and shard based on stock symbol
+
+2. order db should be sql
+orderId, userId, symbol, timestamp, status, exchangeOrderId
+shard based on userId, index shard based on timestamp 
+
+why time series data?
+Queries are mostly time-range based → e.g.,
+    "Get last 5 minutes of trades for AAPL"
+    "Get daily candlesticks for last 1 year"
+
+How new clients coming to platform see the price?
+first provide clients the data till the time has passed for the day then sse can be established
+
+why do we store order data if it is already present at exchange?
+1. querying exchange again and again is costly
+2. we may need to store data at our end for analytics
+3. query can become faster
+
+do order retry? what happens to orders that dont get placed?
+1. if we dont get exchange order id than we can retry and later put it in dead letter queue
+2. if we have exchange order id, we can set up webhook meanwhile also do batch call to exchange to get order updates
+
+redis pub/sub can be used between price service and exchange gatway processor 
+
+separated pre provisioned servers can be setup for high volume entity like hfts etc
+
