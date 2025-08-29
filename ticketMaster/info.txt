@@ -1,0 +1,49 @@
+Functional requirements:
+1. Users should be able to view events
+2. Users should be able to search for events
+3. Users should be able to book tickets to events
+
+Non Functional requirements:
+1. The system should prioritize availability for searching & viewing events, but should prioritize consistency for booking events (no double booking)
+2. The system should be scalable and able to handle high throughput in the form of popular events (10 million users, one event)
+3. The system should have low latency search (< 500ms)
+4. The system is read heavy, and thus needs to be able to support high read throughput (100:1)
+
+API:
+GET /events/:eevntId
+response: Event & Venue & Performer & Ticket[]
+
+GET GET /events/search?keyword={keyword}&start={start_date}&end={end_date}&pageSize={page_size}&page={page_number} 
+response: Event[]
+
+POST /bookings/:eventId 
+
+Database: use sql because we need consistency
+Event:
+id, venueId, performerId,name, description
+
+Ticket:
+id, eventId,seat, price,statuus,userId
+
+Booking:
+id, userId, ticketId
+
+How to prevent double booking?
+    we will not use pessimistic locking as it can result in bad user experience.
+    we use redis lock mechanism, whenever user tries to create booking we create a lock for that ticket in redis with ttl and whenever
+    booking is completed, we mark the status in db to booked
+
+
+How to scale event view?
+1. Prioritize caching for data with high read rates and low update frequency, such as event details (names, dates, venue information), performer bios etc
+
+
+How will the system ensure a good user experience during high-demand events with millions simultaneously booking tickets?
+    For extremely popular events, we can implement an admin enabled virtual waiting queue system to manage user access during times of exceptionally high demand. 
+    Users are placed in this queue before even being able to see the booking page (seat map selected). 
+
+How can you improve search to ensure we meet our low latency requirements?
+    use elasticsearch for search of events and use cdc to sync it with db
+
+
+    
