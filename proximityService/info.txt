@@ -1,0 +1,81 @@
+Functional requirements:
+1. return all business based on user location(lat,long,radius)
+2. owners can add/delete/update a business 
+3. customer can view detailed information about business
+
+Non Functional requirements:
+1. low latency
+2. high availability and scalability requirements
+
+
+Estimation:
+100M dau, per user 5 search
+approx 5000 qps
+
+API:
+GET /v1/search/nearby
+{lat,long,radius}
+response: {
+    business_count:
+    business_object:[{},{}...]
+}
+
+this is read heavy system
+
+Option1:
+store lat and long with indexing
+get lat and long data and then do intersect, this intersect operation can still be very heavy
+not preferred
+
+Option2: 
+geohash
+reduces 2d data into one d data by converting it into string of letter and digit
+geohash has 12 precision level, based on which we can tell we want geohash till this level
+longer the shared prefix, closer the locations are
+bounday issue can be resolved by fetching nearest neighbor in other geohash as well.
+
+Not enough business?
+remove the digit in geohash to broaden the search
+
+Option3: 
+quadtree
+divide space into 2d quadrants
+more comparisons are required in quadtree and tree can be skewed
+inserting a location can cause a quadrant to split or maybe merge whcih can be heavy operation
+quadtree setup can take time
+
+Option4:
+postgress+gis
+It uses R-trees (via GiST indexes) as its primary spatial index, not quadtrees.
+Heavier than quadtrees: More overhead in storage and query execution compared to an in-memory quadtree for just point lookups.
+for high frequency, it can have database latency
+
+geohash vs quadtree
+geohash:
+1. easy to implement
+2. updating index is easy, just remove or add entry
+
+quadtree:
+1. slightly harder to implement
+2. can dynamically adjust the grid size
+3. updating index is more complicated
+Issues with quadtree:
+1. Boundary Issues → Drivers near quadrant edges might require expensive neighbor searches.
+2. Complexity → Quadtrees need recursive traversal and might require rebalancing when inserting/removing drivers.
+3. Not Optimal for Storage → While great for in-memory lookups, storing quadtrees in a distributed system is harder than Geohashes.
+
+prefer geohash
+there can be multiple business in same geohash
+
+database:
+geospatial_index:
+geohash, business_id
+
+business:
+business_id, busines_data
+
+have multiple read replicas 
+
+what if too many business in a geohash causing hotspots?
+1. try increasing geohash length in dense areas
+2. shard db by geohash prefix
