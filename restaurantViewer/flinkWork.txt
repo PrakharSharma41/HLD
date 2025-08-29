@@ -1,0 +1,41 @@
+Flink Job Design for Top-K Dishes
+1. Input Stream
+Orders come in via Kafka (or any queue).
+Each order has:
+{
+  "restaurant_id": 123,
+  "dish_id": 456,
+  "amount": 200,
+  "timestamp": "2025-08-29T23:10:00Z"
+}
+
+2. Partitioning in Flink
+
+Flink job partitions the stream by (restaurant_id, time_bucket).
+Time buckets can be:
+hour_bucket = timestamp truncated to hour
+day_bucket = truncated to day
+week_bucket = truncated to week
+
+This ensures all events for a given restaurant & bucket are processed together.
+
+3. Stateful Aggregation
+Inside each partition, Flink maintains:
+total_amount (sum of amounts)
+dish_counts = hashmap {dish_id → order_count}
+
+4. Top-K Maintenance
+
+For each event:
+    Increment count for dish_id.
+    Maintain a min-heap (size = K) to track top dishes.
+    If new dish enters, push into heap.
+    If heap size > K, evict the smallest.
+    Since K = 5, this is O(log K) ≈ constant time per update.
+
+5. Periodic Emission
+Flink uses Tumbling / Sliding Windows (hourly, daily, weekly).
+At the end of each window OR periodically (say every few seconds for near-real-time freshness),
+
+6. Sink → Cassandra
+Flink writes these aggregates into Cassandra tables (hour_table, day_table, week_table).

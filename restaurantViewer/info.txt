@@ -1,0 +1,66 @@
+Functional requirements:
+1. Show number of order placed.
+2. Show top 3 dishes for which order is placed.
+3. Show total amount sell.
+
+Non functional requirements
+1. restaurant wants to see for last hr, last day, and last 7 days and in real time.
+2. system should be available for all restaurants
+3. eventual consistency works fine for this data
+
+capacity estimation:
+10k restaurants availabile and 100k order placed per sec.
+
+API:
+
+1. GET /api/v1/count?restaurant=""&type=order/sell_amount
+response: count value
+2. GET /api/v1/getTop?restaurant=""&k=3
+response: [{dish object}] 
+3. POST /api/v1/updateOrder
+requestBody:{
+    restaurantId: "",
+    orderData:{
+        orderId: ,
+        amount
+    },
+    
+}
+
+nosql db can be used since it can scale well horizontally and we dont explicitly need strong consistency
+
+cassandra db
+
+restaurant_id and bucket as pk as and timestamp as sort key
+
+hour_table:
+restaurant_id, time_bucket(hour value),total_amount, timestamp, list(dish_id)
+
+day table:
+restaurant_id, ,time_bucket(day value),total_amount, timestamp, list(dish_id)
+
+
+Hotspot handling:
+popular restaurants may receive a lot of requests, how do we handle that?
+1. redis helps for that but we can shard cassandra by restaurant_id in consistent hashing
+2. we can choose restaurant_id + time_bucket as the partition key so writes are evenly distributed and partitions don’t grow unbounded. 
+For very hot restaurants, we can also add a salt/bucket field to spread writes across multiple shards. 
+Reads then aggregate across those buckets. This avoids hotspots and keeps partitions balanced.
+
+
+What if Flink cluster goes down?
+we will set retention policy of 7 days in kafka, so that flink can resume from certain offset
+
+redis data:
+1. Total Sales per Restaurant:
+restaurant:{restaurant_id}:hour:{hour_bucket}
+HSET restaurant:123:hour:2025-08-29T23 total_amount 5000 order_count 200
+
+2. Top-K Dishes per Restaurant:
+restaurant:{restaurant_id}:hour:{hour_bucket}:topdishes
+ZADD restaurant:123:hour:2025-08-29T23 50 dish_456
+ZADD restaurant:123:hour:2025-08-29T23 40 dish_789
+ZADD restaurant:123:hour:2025-08-29T23 25 dish_321
+ZREVRANGE restaurant:123:hour:2025-08-29T23 0 4 WITHSCORES
+or use list
+LPUSH restaurant:123:hour:2025-08-29T23 dish_456 dish_789 dish_321 dish_654 dish_987
