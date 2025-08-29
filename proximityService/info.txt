@@ -78,4 +78,4 @@ have multiple read replicas
 
 what if too many business in a geohash causing hotspots?
 1. try increasing geohash length in dense areas
-2. shard db by geohash prefix
+2. shard db by geohash prefix using consistent hashing
