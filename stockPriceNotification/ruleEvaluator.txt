@@ -1,0 +1,25 @@
+1. Filter relevant rules:
+    When a MetricEvent(symbol="UBER", metric="price", value=60.23) arrives,
+    → evaluator looks up all rules for (UBER, price).
+
+2. Compare metric value with rule:
+For each rule:
+    Apply comparator:
+        gt, lt, eq, between, crosses_up, crosses_down.
+    Consider hysteresis (tolerance band to avoid flapping).
+    Check cooldown (skip if recently fired).
+    Track lastState (so you only fire on false → true transitions).
+
+3. Emit matches
+    If condition satisfied → emit to alerts topic
+    Store updated state (lastState, lastFireTs, suppressedUntil).
+
+For each rule, evaluator maintains:
+    lastState (was it true/false last time?)
+    lastValue (last metric value seen)
+    lastFireTs (when was the last alert triggered)
+    suppressedUntil (next eligible time after cooldown)
+
+
+
+    

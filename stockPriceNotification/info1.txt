@@ -1,0 +1,85 @@
+
+Database:
+prices(symbol TEXT, ts TIMESTAMPTZ, price NUMERIC, volume BIGINT, day_open NUMERIC, PRIMARY KEY (symbol, ts))
+metrics(symbol TEXT, ts TIMESTAMPTZ,
+        ma_5 NUMERIC, ma_20 NUMERIC, ema_12 NUMERIC, ema_26 NUMERIC,
+        rsi_14 NUMERIC, vwap NUMERIC,
+        ohlc JSONB,                      -- optional
+        PRIMARY KEY (symbol, ts))
+
+rule(
+  rule_id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  symbol TEXT NOT NULL,
+  metric ENUM('price','open','ma_5','ma_20','ema_12','rsi_14','vwap'),
+  comparator ENUM('lt','eq','gt','crosses_up','crosses_down','between'),
+  threshold_low NUMERIC NULL,   -- for eq/gt/lt uses threshold_low; for between uses both
+  threshold_high NUMERIC NULL,
+  window_spec JSONB NULL,       -- optional: period=7d, granularity=1m, etc.
+  hysteresis NUMERIC DEFAULT 0, -- e.g., 0.5% band
+  cooldown_sec INT DEFAULT 600,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ, updated_at TIMESTAMPTZ
+);
+
+rule_state(rule_id BIGINT PRIMARY KEY,
+           last_eval_ts TIMESTAMPTZ,
+           last_state BOOLEAN,              -- true=condition currently satisfied
+           last_fire_ts TIMESTAMPTZ,
+           suppressed_until TIMESTAMPTZ);   -- cooldown end
+
+alerts(alert_id BIGSERIAL, rule_id BIGINT, user_id BIGINT, symbol TEXT,
+       fired_ts TIMESTAMPTZ, value NUMERIC, metric TEXT, comparator TEXT,
+       dedupe_key TEXT UNIQUE, delivered BOOLEAN, channel TEXT, details JSONB)
+
+CREATE TABLE metric_events (
+    symbol TEXT,
+    metric TEXT,
+    window TEXT,            -- e.g. "1m", "5m", "10m"
+    event_time TIMESTAMP,   -- bucketed time, acts as clustering
+    value DOUBLE,
+    PRIMARY KEY ((symbol, metric, window), event_time)
+) WITH CLUSTERING ORDER BY (event_time DESC); cassandra 
+
+How does flink maintains state based on different rules?
+Predefine common windowed metrics:
+For example, compute for every symbol:
+    Price bars: 1m, 5m, 15m, 1h, 1 day
+    Moving averages: MA(5), MA(10), MA(20), MA(50), MA(200)
+    RSI(14), RSI(7)
+    VWAP per 1m, 5m, 1h
+
+So Flink job maintains multiple sliding/tumbling windows in parallel, keyed by symbol.
+When a user sets a rule (“drop >5% in last 10 minutes”), you can evaluate it using the 1m price bars → compute change over last 10 bars.
+
+Works well because most trading windows are standardized (5m, 15m, 1h, daily).
+Downside: if users demand arbitrary windows (like 17 minutes), you either approximate to nearest standard window or increase computation cost.
+
+
+What does flink emit and who consumes it?
+flink emits events like:
+MetricEvent {
+    symbol: "AAPL",
+    metric: "RSI_14",
+    value: 67.2,
+    window: "10m",
+    timestamp: 2025-08-31T15:00:00Z
+}
+this event is consumed by rule evaluator, it has per symbol a map: Map<Symbol, Map<Metric, MetricIndex>>
+For each Symbol, you can track multiple metrics (RSI, MovingAverage, Volume, VWAP, etc.).
+MetricIndex
+    MetricIndex is usually a helper structure that stores the rolling window state for that metric.
+    It can maintain:
+        The raw values (or compressed form, like a ring buffer) needed to recompute the metric.
+
+How do we persist rule evaluator state ?
+store events in db and if evaluator crashes, it can rebuild the map from db
+
+CREATE TABLE metric_events (
+    symbol TEXT,
+    metric TEXT,
+    window TEXT,            -- e.g. "1m", "5m", "10m"
+    event_time TIMESTAMP,   -- bucketed time, acts as clustering
+    value DOUBLE,
+    PRIMARY KEY ((symbol, metric, window), event_time)
+) WITH CLUSTERING ORDER BY (event_time DESC);
