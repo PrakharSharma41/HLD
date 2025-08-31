@@ -1,0 +1,7 @@
+Using event-time windows, Flink groups all driver updates by (city_id, geohash_prefix, precision_level) in 1-min or 5-min windows.
+
+Why Flink and Not Just Kafka Consumers?
+1. Scalability: Flink parallelizes stream processing and can rebalance partitions.
+2. Event-time windows: Unlike Kafka consumers, Flink guarantees correct aggregations even if events arrive late.
+3. Stateful operators: Flink maintains driver counts in its internal state with RocksDB backend, fault-tolerant.
+4. Exactly-once semantics: Ensures no double counting in Cassandra/Redis.
