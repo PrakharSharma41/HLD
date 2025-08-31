@@ -1,0 +1,82 @@
+Functional requirements:
+1. (near-real-time): show a heatmap of driver density for the past 20 minutes, updated near-real-time (e.g., refresh every 5–10s or on demand).
+2. (historical/hourly): provide hour-bucketed aggregates for any past day (e.g., “show hour-by-hour heatmap for 2025-08-29”).
+3. support filtering by bounding box / zoom level / city / area.
+4. ingest driver location events (driver_id, lat, lon, timestamp, event_id) at ~500k TPS (assumed global input rate for this city-level stream).
+
+Non Functional requirements:
+1. latency for near-real-time view: ≤ few seconds from event arrival to visible in dashboard.
+2. correctness: eventual consistency is acceptable; counts should be approximate but accurate within defined error margin.
+3. durability for hourly aggregates (persisted to RDBMS).
+4. elastic scalability to handle peak load and hotspots.
+
+
+Estimation:
+TPS: 500,000 GPS updates/sec
+
+Near Real-Time Heatmap (last 20 min in Redis):
+In a large city: ~10,000 geohash cells × 20 minutes = 200k active keys.
+Each key stores just a count (8B) → overhead per key ~64B (Redis metadata).
+Memory per city = 200k × 64B ≈ 12 MB.
+Across 100 cities = ~1.2 GB in Redis.
+Add replication overhead ×2 = ~2.5 GB RAM.
+
+Hourly Aggregates:
+Per city per day:: 24 hourly buckets × 10,000 geohashes = 240k rows/day.
+Across 100 cities = 24M rows/day.
+Row size ~64B (geohash+count+timestamp).
+storage per day: 64B * 24M rows approx 2.1 gb per day
+per year 500gb
+
+
+API:
+1. GET /api/v1/heatmap/realtime&city=''&geohash_id
+Dashboard shows driver distribution for the past 20 minutes.
+
+2. GET /api/v1/heatmap/historical&city=''&geohahs_id=''&hours=''(by default hours will be 24)
+returns hourly buckets per geohash(or aggregated to requested zoom)
+
+3. POST /v1/drivers/{driver_id}/location
+{
+  "latitude": 12.9716,
+  "longitude": 77.5946,
+  "timestamp": "2025-08-31T12:15:00Z"
+}
+
+Database:
+1. Use Redis (or InfluxDB) for the 20-min heatmap (real-time, fast TTL).
+2. influxdb can also be preferred here for time series operations  since we may need to aggregate data for geohash prefix
+
+redis schema (20 mintue aggregate):
+option1:
+Key: city_id:geohash_prefix:minute_bucket example: blr:tdr4hj:2025-08-31T12:05
+value: integer count of drivers in that geohash during that minute.
+set ttl of 20 minutes
+To get heatmap = query last 20 keys per geohash and sum.
+
+option2:
+Key: city_id:geohash_prefix
+Value: Redis Sorted Set →
+    score = timestamp_minute
+    member = count
+Use ZRANGEBYSCORE to get last 20 minutes and sum counts.
+Redis automatically evicts old entries with ZREMRANGEBYSCORE.
+
+
+Cassandra Schema (Hourly Aggregates):
+CREATE TABLE driver_heatmap_hourly (
+    city_id TEXT,
+    geohash_prefix TEXT,
+    precision_level INT,
+    bucket_time TIMESTAMP,   -- truncated to hour
+    driver_count INT,
+    PRIMARY KEY (
+        (city_id, precision_level, geohash_prefix),  -- partition key
+        bucket_time                                  -- clustering key
+    )
+) WITH CLUSTERING ORDER BY (bucket_time DESC);
+
+Partition key = (city, precision, geohash) → keeps all hourly counts for a cell in one partition.
+Clustering key = bucket_time → allows efficient time-range queries (e.g., last 24h).
+Sorted DESC → most recent hour first.
+

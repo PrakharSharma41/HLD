@@ -1,0 +1,18 @@
+1. Event producers: drivers’ devices → send location updates to Kafka topic driver-locations.
+2. Kafka: durable, partitioned buffer. Topic partitioning key = geohashId (or hashed geohashId to smooth distribution).
+3. Flink streaming cluster:
+    3.1 Stream 1 (Realtime pipeline): key by geohashId → tumbling window 1 min (or sliding) → counts per geohash per minute → write to Redis (fast read store) for last-20-minutes window.
+    3.2 Stream 2 (Hourly pipeline): same source or from processed minute aggregates → aggregate into hourly buckets → write to Postgres (or OLTP store) for historical analytics.
+    3.3 Flink stateful features: RocksDB state backend, checkpointing, event time + watermarks, out-of-order handling, optional dedup by (driver_id, minute) to avoid double counts.
+4. Redis: in-memory store for last 20 minutes; data model supports fast reads by geohash viewport and sliding window sums.
+5. Postgres (or equivalent RDBMS / OLAP): persistent hourly aggregates (geohash, hour_start, count).
+6. Dashboard API layer (stateless microservice): serves UI requests, queries Redis for real-time, Postgres for historical; supports bounding box, zoom level, pagination.
+7. UI / Dashboard: heatmap visualization; requests API for current / historical tiles.
+
+
+Flow:
+1. Device → location event → Kafka driver-locations.
+2. Kafka partitions by geohash → Flink consumes approx. in parallel matching partitions.
+3. Flink computes 1-minute tumbling windows keyed by geohash → emits per-minute counts.
+4. Flink writes per-minute counts to Redis (for realtime sliding-20min) and (also) routes to hourly aggregator.
+5. Hourly aggregator writes to Postgres at end of each hour.
