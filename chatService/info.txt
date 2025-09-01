@@ -44,13 +44,16 @@ Database tables
 users:
 user_id,username, lastActive,status:online/offline
 
+
+use dynamodb for below tables:
+
 messages:
-message_id,from_user,time,content,status(sent/delievered/read)
-For private chats, store messages with message_id as a partition key
+message_id,from_user,to_user,time,content,status(sent/delievered/read),chat_id(from_user#to_user)
+For private chats, store messages with chat_id as a partition key and time as sort key
 
 chat message:
-channel_id,message_id,user_id,content,created_at
-partition key based on channel_id
+channel_id,message_id,user_id,content,created_at,time
+partition key based on channel_id, time as sort key
 
 chat participants:
 channel_id,user_id
@@ -78,3 +81,14 @@ for dynamodb:
   "to_user": "userB",
   "content": "Hi!"
 }
+
+What if a very active group chat gets millions of messages per day?
+  can do sharding by channel_id#date (daily/weekly buckets).
+
+How do you show “5 unread messages” for each chat/channel?
+need another table like UserChatState (PK=user_id, SK=chat_id, last_read_time).
+
+What if two users send at the exact same timestamp?
+append a UUID/random suffix to the sort key.
+
+archiving old messages to S3 via Streams/Lambda.
