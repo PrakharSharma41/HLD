@@ -32,3 +32,9 @@ we can store trie in 2 ways:
 we can add a filter layer between api servers and trie cache to filter out abusive content.
 
 we can shard the data based on keys and to prevent hot partitioning, we can use historical patterns to make sure that shards are evenly distributed
+
+we can use redis also where key will be prefix and value will be sorted set of strings with their count 
+we can backup the data in key value store
+
+debouncing?
+can be used so that search query is not fired for each character, instead it can skip some characters(from frontend side)

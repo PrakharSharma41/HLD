@@ -7,6 +7,8 @@ Non Functional Requirements:
 1. High availability: The system should be highly available and resilient to failures.
 2. Low latency: As mentioned in the scale requirement, end-to-end latency should be under 200 milliseconds.
 3. At-least-once processing: Each event should be processed at least once if the system accepts it.
+4. handle out of order events
+5. security(by sharing secret key at time of registration)
 
 API:
 1. POST /webhooks/{source}
