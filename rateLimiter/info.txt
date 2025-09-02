@@ -52,3 +52,19 @@ How to update rules in api gateway:
 1. Use a push-based system where configuration changes are immediately sent to all API gateways. 
 2. ZooKeeper maintains configuration data and notifies all connected clients (your API gateways) immediately when any configuration changes.
 
+
+we can use token bucket algorithm, we will store tokens for users in redis and when a request comes in, we will use 
+lua script to update tokens in redis
+we cannot use multi command, even though it is atomic, because we will first have to find last refill time from redis and then
+run multi  command, that last refill read can cause issue in concurrency
+
+
+How to scale?
+add redis servers and use consistent hashing based on user id or their address so that their request always go to same redis servers
+
+How do we minimize latency overhead?
+Instead of establishing a new TCP connection to Redis for each rate limit check
+API gateways maintain a pool of persistent connections. This eliminates the TCP handshake overhead
+
+How do we handle dynamic rule configuration?
+Use a push-based system where configuration changes are immediately sent to all API gateways. we can use redis pub sub for this
