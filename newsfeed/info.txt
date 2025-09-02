@@ -1,9 +1,32 @@
-requirements:
+functional requirements:
 
-user can publish and see friends posts
+1. Users should be able to create posts.
+2. Users should be able to friend/follow people.
+3. user can publish and see friends posts
+
+Non functional requirements:
+1. The system should be highly available (prioritizing availability over consistency). We'll tolerate up to 1 minute of post staleness (eventual consistency).
+2. Posting and viewing the feed should be fast, returning in < 500ms.
+3. The system should be able to handle a massive number of users (2B).
+
 how many friends a user can have?: 5000
 what is traffic volume: 10 million dau
 can contain both text and image
+
+API:
+1. POST /posts 
+{
+    "content": { }
+}
+
+2. PUT /users/[id]/followers By using PUT we can ensure it is idempotent
+
+3. GET /feed?pageSize={size}&cursor={timestamp?} paginate
+{
+    items: Post[],
+    nextCursor: string
+}
+
 
 Fanout service:
 
@@ -15,14 +38,19 @@ For celebrities or users who have many friends/followers, we let followers pull 
 
 database:
 
-user:
+user: sql
 user_id, user_name
 
 friends:
-user_id1,user_id2
+userFollowing,userFollowed
+userFollowed as sk, userFollowing as pk
+create gsi on userFollowing as pk and userFollowed as sk
 
-userToposts:
-user_id,post_id
+posts: dynamodb 
+post_id,post_details,created_at, created_by
+post_id as pk and created_at as sk
+createdby as gsi created_at at sk
 
-posts:
-post_id,post_details
+pre_computed_feed:
+user_id,created_at, post_id
+user_id as pk, created_at as sk
