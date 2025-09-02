@@ -68,7 +68,7 @@ prefer geohash
 there can be multiple business in same geohash
 
 database:
-geospatial_index:
+geospatial_index: use cassandra
 geohash, business_id
 
 business:
