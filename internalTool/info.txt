@@ -263,3 +263,15 @@ manticore:
 
 Rabbitmq:
 3.13.4
+
+which health checks are running?
+1. panacea services health: nutanix_log_ingestion, nutanix_log_analyzer
+2. root partition usage(disk usage)
+3. low cpu Idle 
+4. low memory check
+5. manticore health and dir storage check
+
+how does rabbitmq detects down consumer?
+
+1. consumer level heartbeat, which is per hour, if consumer doesnt respond, connection is considered to be dead 
+2. if consumer dies in between processing, rabbitmq detects connection failure and reque the message

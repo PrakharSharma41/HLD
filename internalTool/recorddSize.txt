@@ -16,3 +16,23 @@ log_hash:               string    32 to 64 bytes
 total approx record size: approx 928 bytes or 1 mb
 
 string is treated as exact match field whereas text is free form full text which is tokenized and analyzed
+
+known_issues table:
+rule_id,time,cvm_ip,log_hash,log_bundle_id
+
+log_benchmarking_event:
+log_bundle_id,event_name,start_time,end_time
+
+ergon_tasks_table;
+time,task_id,parent_task_id,task_type,initial_state,final_state,log_bundle_id
+
+cluster_details:
+log_bundle_id,cluster_name,cluster_external_ip,num_nodes,ncc_version
+
+node_details:
+log_bundle_id, cvm_ip,hypervisor(string),snapshot_time
+
+disk_details:
+log_bundle_id,disk_id,storage_tier,snapshot_time
+
+file_server_details:
