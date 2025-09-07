@@ -13,21 +13,93 @@ non functional requirements:
 2. rate limiting, not overload the customer with too many notification(can be done by notification servers)
 3. scalable
 
+
+API:
+POST /api/v1/sendNotification
+{
+  "requestId": "abc123",
+  "timestamp": "2024-09-17T14:00:00Z",
+  "notificationType": "transactional",
+  "channels": ["email", "sms", "push"],
+  "recipient": {
+    "userId": "user789",
+    "email": "user@example.com"
+  },
+  "message": {
+    "subject": "Order Confirmation",
+    "body": "Thank you for your order! Your order #123456 has been confirmed.",
+    "attachments": ["https://example.com/invoice123456.pdf"],
+    "smsText": "Thank you for your order! Order #123456 confirmed.",
+    "pushNotification": {
+      "title": "Order Confirmed",
+      "body": "Your order #123456 has been confirmed. Check your email for details.",
+      "icon": "https://example.com/icon.png",
+      "action": {
+        "type": "viewOrder",
+        "url": "https://example.com/order/123456"
+      }
+    }
+  },
+  "schedule": {
+    "sendAt": "2024-09-17T15:00:00Z"
+  },
+  "metadata": {
+    "priority": "high",
+    "retries": 3
+  }
+}
+
 database:
 if high volume, we can use cassandra as well 
+
 user:
 user_id,email_id, country
+
+user_preferences:
+user_id,preferences(json)
 
 device:
 user_id, device_id
 
-notification:
+notification log:
 notification_id, device_id, retry_count,user_id,last_updated,status: success/failed
 
 scheduled_notificaion:
 notification_id,scheduled_time,message,retry_left,status:success/failed
 partitioned based on scheduled_time
 
+sample response from user preference service:
+{
+  "userId": "user789",
+  "preferences": {
+    "channels": {
+      "transactional": ["email", "push"],
+      "promotional": ["sms"],
+      "systemAlert": ["push", "sms"]
+    },
+    "doNotDisturb": {
+      "enabled": true,
+      "startTime": "22:00",
+      "endTime": "08:00",
+      "timezone": "America/New_York"
+    },
+    "dailyLimits": {
+      "promotionalLimit": 2,
+      "promotionalSentToday": 1
+    },
+    "optOut": {
+      "email": false,
+      "sms": false,
+      "push": false
+    },
+    "preferredTimeForDelivery": {
+      "enabled": true,
+      "startTime": "09:00",
+      "endTime": "21:00",
+      "timezone": "America/New_York"
+    }
+  }
+}
 
 step3: 
 scalability ,prevent data loss
