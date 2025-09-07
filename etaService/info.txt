@@ -1,0 +1,67 @@
+functional requirements:
+1. Given a rider's location and a driver’s location, calculate the estimated time it would take for the driver to reach the rider.
+2. Support real-time updates as the driver moves.
+3. Provide ETA for multiple drivers at once when searching for available rides.
+4. Offer cached results where applicable to reduce computation.
+5. Allow different ETA algorithms based on road conditions, traffic, historical data, etc.
+
+non functional requirements:
+1. Low latency – responses should be under 100ms ideally.
+2. High availability – the service should be resilient to failures.
+3. Scalability – must handle bursts during peak hours.
+4. Consistency – results can be eventually consistent; minor inaccuracies are tolerable but should be reasonable.
+
+Data Flow:
+1. Rider requests an ETA → API Gateway → ETA Service.
+2. ETA Service fetches driver and rider locations from Location Service.
+3. Checks the Cache → if hit, return result.
+4. If cache miss → fetch routes from Map Service + traffic from Traffic Service.
+5. Compute ETA → store in Cache → respond to client.
+6. Periodically update Cache as locations change.
+
+API:
+GET /eta?origin={lat,lon}&destination={lat,lon}&driver_id=123
+
+Response:
+{
+   "eta_seconds": 420,
+   "distance_meters": 3000,
+   "route": [
+       {"lat": 12.34, "lon": 56.78},
+       {"lat": 12.35, "lon": 56.79}
+   ],
+   "last_updated": "2025-09-07T14:22:33Z"
+}
+
+Database:
+DriverLocation Table: can be in redis
+| driver_id | latitude | longitude | timestamp |
+
+CachedETA Table: in redis
+| origin_lat | origin_long | dest_lat | dest_long | eta_seconds | last_updated |
+
+
+
+What is stored in the Cache?
+eta:{origin_lat}:{origin_lon}:{dest_lat}:{dest_lon}
+
+How do we update cache?
+    First request → ETA computed using current location → stored in cache.
+    Later request → client's location has changed → cache key matches → but ETA is outdated → stale data served.
+
+Attach Location Timestamps to the Cache Entry:
+{
+  "eta_seconds": 420,
+  "distance_meters": 3000,
+  "route": [...],
+  "last_updated": "2025-09-07T14:22:33Z",
+  "origin": {"lat": 37.7749, "lon": -122.4194},
+  "destination": {"lat": 37.8715, "lon": -122.2730}
+}
+When a new request comes in, ETA Service:
+    1. Checks cache → finds an entry.
+    2. Compares current locations (from Location Service) with cached origin and destination.
+    3. If within acceptable distance (say <50m), return cached result.
+    4. If beyond threshold → recompute and update cache.
+
+
