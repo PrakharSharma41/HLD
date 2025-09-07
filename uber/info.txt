@@ -18,25 +18,26 @@ CORE ENTITIES:
 Driver, Ride, Rider, Location
 
 API
-POST /ride/fairEstimate ->returns {ride, price}
+POST /ride/fairEstimate ->returns {fare object}
 {
     source: "",
     destination:""
 }
-PUT /ride/request -> 200
+PUT /ride/request -> 200  It initiates the ride matching process by signaling the backend to find a suitable driver
 {
-    ride:""
+    fareId
 }
 POST /location/update
 {
     lat,long
 }
-PUT /ride/driver/accept // here we can send driverid in jwt token
+PUT /rides/:rideId // here we can send driverid in jwt token
 {
     rideId,
-    true/false
+    accept: true/false
 }
-PUT /ride/driver/update
+
+PUT /ride/:rideId/update
 {
     rideId,
     status: 'pickup' / 'dropoff'
@@ -62,6 +63,7 @@ can use geospatial index in postgres
 
 location:
 driver_id, location
+Redis provides geospatial commands like GEOADD for adding location data and GEOSEARCH for querying nearby locations within a given radius or bounding box. 
 
 LOCATION SERVICE:
 location service needs to be able to handle multipel transactions
@@ -109,11 +111,34 @@ this queue can be partioned by regions/location
 
 
 
+How can we manage system overload from frequent driver location updates while ensuring location accuracy?
+We can address this issue by implementing adaptive location update intervals, which dynamically adjust the 
+frequency of location updates based on contextual factors such as speed, direction of travel, proximity to pending ride requests, and driver status.
 
 
+How do we prevent multiple ride requests from being sent to the same driver simultaneously?
+When a ride request is sent to a driver, a lock is created with a unique identifier (e.g., driverId) and a TTL set to the acceptance window duration of 10 seconds.
 
 
+How can we ensure no ride requests are dropped during peak demand periods?
+When a ride request comes in, it is added to the queue. The Ride Matching Service then processes requests from the queue in a first-come, first-served manner. 
 
 
+What happens if a driver fails to respond in a timely manner?
+    A Temporal workflow would:
+    1. Send the ride request to the first driver
+    2. Set a 10-second timeout
+    3. If the driver accepts, complete the workflow
+    4. If the driver declines or times out, automatically move to the next driver
+    5. Continue this process until a driver is found or all drivers are exhausted
 
 
+How nearby drivers are found?
+Redis provides geospatial commands like GEOADD for adding location data and GEOSEARCH for querying nearby locations within a given radius or bounding box. 
+These commands are highly optimized for geospatial data and can be used to efficiently handle real-time driver location updates and proximity searches
+
+Every driver’s location is updated in Redis using GEOADD
+When a user requests a ride, the app queries nearby drivers using GEOSEARCH.
+
+GEOADD locations 13.361389 38.115556 "Palermo"
+GEOSEARCH locations FROMMEMBER "Palermo" BYRADIUS 100 km
