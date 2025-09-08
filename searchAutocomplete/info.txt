@@ -8,7 +8,7 @@ Non functional requirements:
 2. Scalability: The system should support 100 million daily users.
 3. Latency: The system should provide search suggestions in real-time (within a few hundred milliseconds).
 4. Efficiency: The system should efficiently use memory and computational resources.
-5. Consistency: Since the system will be read-only for the clients, consistency is not a primary concern.
+5. Consistency: Since the system will be read-only for the clients, consistency is not a primary concern,2 people can see different results
 
 API:
 GET /suggestions?q={search-term}
