@@ -1,0 +1,47 @@
+CREATE TABLE users (
+    user_id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    phone_number VARCHAR(15) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notification_types (
+    type_id VARCHAR(50) PRIMARY KEY,
+    description TEXT
+);
+
+CREATE TABLE channels (
+    channel_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(50),
+    description TEXT
+);
+
+CREATE TABLE channels (
+    channel_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(50),
+    description TEXT
+);
+
+CREATE TABLE user_preferences (
+    user_id VARCHAR(255),
+    type_id VARCHAR(50),
+    channel_id VARCHAR(50),
+    preference ENUM('opt_in', 'opt_out') DEFAULT 'opt_in',
+    max_daily_limit INT DEFAULT 5,
+    PRIMARY KEY (user_id, type_id, channel_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (type_id) REFERENCES notification_types(type_id),
+    FOREIGN KEY (channel_id) REFERENCES channels(channel_id)
+);
+
+CREATE TABLE notification_logs (
+    log_id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255),
+    type_id VARCHAR(50),
+    channel_id VARCHAR(50),
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('sent', 'failed', 'delivered') DEFAULT 'sent',
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (type_id) REFERENCES notification_types(type_id),
+    FOREIGN KEY (channel_id) REFERENCES channels(channel_id)
+);
