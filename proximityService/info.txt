@@ -79,3 +79,13 @@ have multiple read replicas
 what if too many business in a geohash causing hotspots?
 1. try increasing geohash length in dense areas
 2. shard db by geohash prefix using consistent hashing
+
+CREATE TABLE businesses (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    geohash TEXT,
+    location GEOGRAPHY(POINT, 4326),
+    rating FLOAT
+);
+CREATE INDEX idx_geohash ON businesses(geohash);
+CREATE INDEX idx_location ON businesses USING GIST(location);
