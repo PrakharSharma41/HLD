@@ -1,0 +1,27 @@
+functional requirements:
+1. Employee Management:
+    Add, update, and remove employee details.
+    Store employee information (name, department, role, etc.).
+
+2. Badge Management:
+    Issue a badge to an employee.
+    Revoke or deactivate a badge.
+    Renew or replace lost/damaged badges.
+
+3. Access Control:
+    Define which areas or systems an employee can access.
+    Log access events (when and where a badge was used).
+
+4. Audit and Reporting:
+    Generate reports for issued/revoked badges.
+    Track access logs for compliance and security audits.
+
+5. Alerts and Notifications:
+    Notify security/admins if badges are used incorrectly or expired.
+
+
+non functional requirements:
+1. Scalability: Support thousands of employees and multiple locations.
+2. Security: Ensure sensitive employee data and access logs are encrypted.
+3. Availability: High uptime, especially for access control systems.
+4. Compliance: Support regulatory requirements like GDPR, HIPAA.    

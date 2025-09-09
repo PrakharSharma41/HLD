@@ -1,0 +1,48 @@
+Employee table:
+| Column       | Type      | Constraints          |
+| ------------ | --------- | -------------------- |
+| employee\_id | UUID (PK) | Not null             |
+| name         | VARCHAR   | Not null             |
+| email        | VARCHAR   | Unique               |
+| department   | VARCHAR   | Not null             |
+| role         | VARCHAR   | Not null             |
+| status       | VARCHAR   | e.g. Active/Inactive |
+
+
+Badge table:
+| Column       | Type      | Constraints                       |
+| ------------ | --------- | --------------------------------- |
+| badge\_id    | UUID (PK) | Not null                          |
+| employee\_id | UUID (FK) | References Employee(employee\_id) |
+| badge\_type  | VARCHAR   | e.g. RFID, SmartCard              |
+| issue\_date  | DATE      | Not null                          |
+| expiry\_date | DATE      | Not null                          |
+| status       | VARCHAR   | Active/Revoked/Expired            |
+
+policy table:
+| Column        | Type      | Constraints                                    |
+| policy\_id    | UUID (PK) | Not null                                       |
+| name          | VARCHAR   | Not null                                       |
+| description   | TEXT      |                                                |
+| area          | VARCHAR   | e.g. "Server Room", "Main Entrance"            |
+| allowed\_role | VARCHAR   | e.g. "Engineer", "Admin"                       |
+| start\_time   | TIME      | e.g. 08:00:00                                  |
+| end\_time     | TIME      | e.g. 18:00:00                                  |
+| condition     | TEXT      | Optional JSON with advanced rules              |
+
+Employee policy table:
+| Column       | Type      | Constraints                                    |
+| ------------ | --------- | ---------------------------------------------- |
+| employee\_id | UUID (FK) | References Employee(employee\_id)              |
+| policy\_id   | UUID (FK) | References Access\_Control\_Policy(policy\_id) |
+
+
+access logs table:
+| Column          | Type      | Constraints                 |
+| --------------- | --------- | --------------------------- |
+| log\_id         | UUID (PK) | Not null                    |
+| badge\_id       | UUID (FK) | References Badge(badge\_id) |
+| timestamp       | TIMESTAMP | Not null                    |
+| area            | VARCHAR   | Not null                    |
+| access\_granted | BOOLEAN   | Not null                    |
+| reason          | TEXT      | Optional explanation        |
