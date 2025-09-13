@@ -42,30 +42,44 @@ users might use features that require random access of data, such as search, vie
 Database tables
 
 users:
-user_id,username, lastActive,status:online/offline
+user_id,username, lastActive,status:online/offline,last_seen
 
+group_metadata:
+group_id,groupname,description
+
+group_mapping:
+group_id,user_id,joined_date
 
 use dynamodb for below tables:
 
+chat:
+chat_id,name,metadata
+chat_id as partition key
+
 messages:
-message_id,from_user,to_user,time,content,status(sent/delievered/read),chat_id(from_user#to_user)
-For private chats, store messages with chat_id as a partition key and time as sort key
+message_id,chat_id,from_user,creation_time,content,status(sent/delievered/read)
+Store messages with chat_id as a partition key and time as sort key
 
-chat message:
-channel_id,message_id,user_id,content,created_at,time
-partition key based on channel_id, time as sort key
-
-chat participants:
-channel_id,user_id
-we can also create a GSI to get all channels a user is part of
-
-inbox table:
-message_id, recipient_id
-when client comes online than client can read messages from this table
-entry in this table is only created when client is offline
+chat participants: this can be replaced with group table, we can get participants from group table as well
+chat_id,participant_id
+we can also create a GSI to get all chats a user is part of
 
 message_sync:
 user_id,device_id,last_message_offset
+user_id as pk, device_id as sk
+
+inbox table:
+message_id, recipient_id,chat_id,isDelivered,isAcknowledged
+recipient_id as pk, message_id as sk
+
+when client comes online than client can read messages from this table
+entry in this table is only created when client is offline
+
+redis connection
+user_id: websocket,ttl
+
+for multiple device case, we change the key to:
+user_id:device_id: websocket,ttl
 
 in key value db, we can also use redis sorted set 
 Key: chat:A:B
@@ -81,6 +95,11 @@ for dynamodb:
   "to_user": "userB",
   "content": "Hi!"
 }
+
+user connection info is stored in redis cache:
+user1: websocket connection1,ttl
+user2: websocket connection2,ttl
+
 
 What if a very active group chat gets millions of messages per day?
   can do sharding by channel_id#date (daily/weekly buckets).

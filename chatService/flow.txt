@@ -1,24 +1,19 @@
 Client A Sends a Message to the Chat Service:
 
+
 1. After Client A starts, it sends a WebSocket request to our Chat Service;
 2. After the Load Balancer receives the request, it forwards the request to a specific Chat Service, and Client A establishes a connection with this Chat Server. A Chat Server maintains one WebSocket connection for each client.
 3. Client A sends messages (send_message action) through the WebSocket connection.
 4. The Chat Server asks the ID generator for a unique id for the message;
-5. The Chat Server writes the received messages into the Message Queue;
-6. Once the messages are successfully written into the Message Queue, the Chat Server immediately responds to the Client with a message_received type confirmation message through the WebSocket connection;
-7. Upon receiving a confirmation message of the message_received type from the server, the client can identify the specific message acknowledged by the server using the included message_id.
+5. The Chat Server writes the message into the message table and inbox table and isDelivered is marked as false
+6. chat server uses the redis connection cache to deliver to message to all the user websocket endpoints
+7. when recipient reads the message, it sends the ack back to the chat server using which sender can know that message was read and isDelivered is marked as true(this entry can be removed)
 
 
-Delivering the Message to Client B (Online):
-1. The messages stored in the Message Queue are processed by the MQ Consumer;
-2. The MQ Consumer checks if the Receiver has a WebSocket connection; if it exists, it then pushes the message (packaged into incoming_message type) to the receiver (Client B) through the WebSocket connection.
-3. Upon receiving an incoming_message type message, the Client should immediately respond to the Server with a message_delivered type message.
-4. If the Server does not receive a message_delivered within a certain timeframe (such as 10 seconds), it writes the message into the Message Database without adding the undelivered field. If either the WebSocket connection does not exist or message_delivered is not received, the undelivered field is marked as true when writing into the Message Database.
-5. For situations where the WebSocket connection does not exist or message_delivered is not received, the message should also be recorded in the cache "inbox", and the message will be delivered to the Client using a third-party service.
 
 Delivering the Message to Client B (Offline):
 1. Client B comes online and establishes a WebSocket connection with the server.
 2. After a secure WebSocket connection is established, the Chat Server checks Client B's "inbox" in the cache for any undelivered messages.
-3. If undelivered messages are found, the Chat Service sends these messages to Client B over the WebSocket connection.
+3. If undelivered messages are found(isDelivered as false), the Chat Service sends these messages to Client B over the WebSocket connection.
 4. Upon receiving the messages, Client B sends a message_delivered notification back to the server, confirming successful message reception.
 5. After the server receives the message_delivered notification, it updates the status in the Message Database from undelivered to delivered and also removes the corresponding messages from the Inbox in the cache.
